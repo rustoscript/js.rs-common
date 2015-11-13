@@ -134,7 +134,7 @@ pub enum Stmt {
     Assign(String, Exp),
     BareExp(Exp),
     Decl(String, Exp),
-    If(Exp, Box<Stmt>, Vec<(Exp, Box<Stmt>)>, Option<Box<Stmt>>),
+    If(Exp, Box<Stmt>, Option<Box<Stmt>>),
     Seq(Box<Stmt>, Box<Stmt>),
     While(Exp, Box<Stmt>),
 }
@@ -153,19 +153,14 @@ impl Stmt {
             Stmt::Assign(ref v, ref exp) => write!(fmt, "{}{} = {};\n", indent, v, exp),
             Stmt::BareExp(ref exp) => write!(fmt, "{}{};\n", indent, exp),
             Stmt::Decl(ref v, ref exp) => write!(fmt, "{}var {} = {};\n", indent, v, exp),
-            Stmt::If(ref e, ref s, ref vec, ref els) => {
+            Stmt::If(ref e, ref s, ref els) => {
                 try!(write!(fmt, "{}if ({}) {{\n", indent, e));
                 indented_stmt!(s);
 
-                for &(ref exp, ref stmt) in vec {
-                    try!(write!(fmt, "{}else if ({}) {{\n", indent, exp));
+                if let &Some(ref stmt) = els {
+                    try!(write!(fmt, "{}else {{\n", indent));
                     indented_stmt!(stmt);
                     try!(write!(fmt, "{}}}\n", indent));
-                }
-
-                if let &Some(ref stmt) = els {
-                    try!(write!(fmt, "{} else {{\n", indent));
-                    indented_stmt!(stmt);
                 }
 
                 Ok(())

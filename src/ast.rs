@@ -57,7 +57,7 @@ pub enum Exp {
     BinExp(Box<Exp>, BinOp, Box<Exp>),
     Bool(bool),
     Call(Box<Exp>, Vec<Box<Exp>>),
-    Defun(Option<String>, Vec<Exp>, Vec<Box<Stmt>>),
+    Defun(Option<String>, Vec<String>, Box<Stmt>),
     Float(f64),
     Neg(Box<Exp>),
     Pos(Box<Exp>),
@@ -150,11 +150,7 @@ impl Exp {
                 }
 
                 try!(write!(fmt, ") {{"));
-
-                for stmt in body {
-                    try!(stmt.fmt_helper(&mut fmt, indent_level + 2));
-                }
-
+                try!(body.fmt_helper(&mut fmt, indent_level + 2));
                 write!(fmt, "}}")
             }
             Exp::Float(f) => write!(fmt, "{}", f),

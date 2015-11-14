@@ -56,6 +56,8 @@ impl Display for BinOp {
 pub enum Exp {
     BinExp(Box<Exp>, BinOp, Box<Exp>),
     Bool(bool),
+    Call(Box<Exp>, Vec<Box<Exp>>),
+    Defun(Option<String>, Vec<Exp>, Vec<Box<Stmt>>),
     Float(f64),
     Neg(Box<Exp>),
     Pos(Box<Exp>),
@@ -71,7 +73,8 @@ impl Exp {
     pub fn precedence(&self) -> Precedence {
         match *self {
             Exp::BinExp(_, ref o, _) => o.precedence(),
-            Exp::Bool(_) | Exp::Float(_) | Exp::Undefined | Exp::Var(_) => Precedence::Const,
+            Exp::Bool(_) | Exp::Call(..) | Exp::Defun(..) | Exp::Float(_) |
+            Exp::Undefined | Exp::Var(_) => Precedence::Const,
             Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
             Exp::PostDec(_) | Exp::PostInc(_) | Exp::PreDec(_) | Exp::PreInc(_) => Precedence::Inc,
         }
@@ -88,8 +91,8 @@ macro_rules! group {
     }
 }
 
-impl Display for Exp {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+impl Exp {
+    fn fmt_helper(&self, mut fmt: &mut Formatter, indent_level: i32) -> Result<(), Error> {
         match *self {
             Exp::BinExp(ref e1, ref o, ref e2) => {
                 let prec = self.precedence();
@@ -116,6 +119,44 @@ impl Display for Exp {
                 write!(fmt, "{} {} {}", left, o, right)
             }
             Exp::Bool(b) => write!(fmt, "{}", b),
+            Exp::Call(ref func, ref args) => {
+                try!(write!(fmt, "{}(", func));
+
+                for (i, arg) in args.iter().enumerate() {
+                    if i != 0 {
+                        try!(write!(fmt, ", "));
+                    }
+
+                    try!(write!(fmt, "{}", arg));
+                }
+
+                write!(fmt, ")")
+            }
+            Exp::Defun(ref opt, ref params, ref body) => {
+                try!(write!(fmt, "function"));
+
+                if let &Some(ref func) = opt {
+                    try!(write!(fmt, " {}", func));
+                }
+
+                try!(write!(fmt, "("));
+
+                for (i, param) in params.iter().enumerate() {
+                    if i != 0 {
+                        try!(write!(fmt, ", "));
+                    }
+
+                    try!(write!(fmt, "{}", param));
+                }
+
+                try!(write!(fmt, ") {{"));
+
+                for stmt in body {
+                    try!(stmt.fmt_helper(&mut fmt, indent_level + 2));
+                }
+
+                write!(fmt, "}}")
+            }
             Exp::Float(f) => write!(fmt, "{}", f),
             Exp::Neg(ref e) => write!(fmt, "-{}", group!(e, Precedence::Sign)),
             Exp::Pos(ref e) => write!(fmt, "+{}", group!(e, Precedence::Sign)),
@@ -129,12 +170,19 @@ impl Display for Exp {
     }
 }
 
+impl Display for Exp {
+    fn fmt(&self, mut fmt: &mut Formatter) -> Result<(), Error> {
+        self.fmt_helper(&mut fmt, 0)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum Stmt {
     Assign(String, Exp),
     BareExp(Exp),
     Decl(String, Exp),
     If(Exp, Box<Stmt>, Option<Box<Stmt>>),
+    Ret(Exp),
     Seq(Box<Stmt>, Box<Stmt>),
     While(Exp, Box<Stmt>),
 }
@@ -147,14 +195,32 @@ impl Stmt {
             }
         }
 
+        macro_rules! exp_semi {
+            ($exp:expr) => {{
+                try!($exp.fmt_helper(&mut fmt, indent_level));
+                writeln!(fmt, ";")
+            }}
+        }
+
         let indent : String = (0..indent_level).map(|_| " ").collect();
 
         match *self {
-            Stmt::Assign(ref v, ref exp) => write!(fmt, "{}{} = {};\n", indent, v, exp),
-            Stmt::BareExp(ref exp) => write!(fmt, "{}{};\n", indent, exp),
-            Stmt::Decl(ref v, ref exp) => write!(fmt, "{}var {} = {};\n", indent, v, exp),
+            Stmt::Assign(ref v, ref exp) => {
+                try!(write!(fmt, "{}{} = ", indent, v));
+                exp_semi!(exp)
+            }
+            Stmt::BareExp(ref exp) => {
+                try!(write!(fmt, "{}", indent));
+                exp_semi!(exp)
+            }
+            Stmt::Decl(ref v, ref exp) => {
+                try!(write!(fmt, "{}var {} = ", indent, v));
+                exp_semi!(exp)
+            }
             Stmt::If(ref e, ref s, ref els) => {
-                try!(write!(fmt, "{}if ({}) {{\n", indent, e));
+                try!(write!(fmt, "{}if (", indent));
+                try!(e.fmt_helper(&mut fmt, indent_level + 2));
+                try!(writeln!(fmt, ") {{\n"));
                 indented_stmt!(s);
 
                 if let &Some(ref stmt) = els {
@@ -165,7 +231,14 @@ impl Stmt {
 
                 Ok(())
             }
-            Stmt::Seq(ref s1, ref s2) => write!(fmt, "{}{}{}{}", indent, s1, indent, s2),
+            Stmt::Ret(ref e) => {
+                try!(write!(fmt, "return "));
+                exp_semi!(e)
+            }
+            Stmt::Seq(ref s1, ref s2) => {
+                try!(s1.fmt_helper(&mut fmt, indent_level));
+                s2.fmt_helper(&mut fmt, indent_level)
+            }
             Stmt::While(ref exp, ref stmt) => {
                 try!(write!(fmt, "{}while ({}) {{\n", indent, exp));
                 try!(stmt.fmt_helper(&mut fmt, indent_level + 2));

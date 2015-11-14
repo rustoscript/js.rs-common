@@ -3,7 +3,13 @@ use std::fmt::{Display, Error, Formatter};
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BinOp {
     And,
+    Ge,
+    Gt,
+    Eql,
+    Le,
+    Lt,
     Minus,
+    Neq,
     Or,
     Plus,
     Slash,
@@ -15,8 +21,9 @@ pub enum Precedence {
     Const = 110,
     Sign = 100,
     Inc = 90,
-    Mult = 60,
-    Add = 50,
+    Mult = 70,
+    Add = 60,
+    Equality = 50,
     And = 40,
     Or = 30,
 }
@@ -25,6 +32,8 @@ impl BinOp {
     pub fn precedence(&self) -> Precedence {
         match *self {
             BinOp::And => Precedence::And,
+            BinOp::Ge | BinOp::Gt | BinOp::Eql | BinOp::Le | BinOp::Lt |
+            BinOp::Neq => Precedence::Equality,
             BinOp::Or => Precedence::Or,
             BinOp::Minus | BinOp::Plus => Precedence::Add,
             BinOp::Slash | BinOp::Star => Precedence::Mult,
@@ -43,7 +52,13 @@ impl Display for BinOp {
     fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
         match *self {
             BinOp::And => write!(fmt, "&&"),
+            BinOp::Ge => write!(fmt, ">="),
+            BinOp::Gt => write!(fmt, ">"),
+            BinOp::Eql => write!(fmt, "=="),
+            BinOp::Le => write!(fmt, "<="),
+            BinOp::Lt => write!(fmt, "<"),
             BinOp::Minus => write!(fmt, "-"),
+            BinOp::Neq => write!(fmt, "!="),
             BinOp::Or => write!(fmt, "||"),
             BinOp::Plus => write!(fmt, "+"),
             BinOp::Slash => write!(fmt, "/"),

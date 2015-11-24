@@ -23,6 +23,10 @@ macro_rules! format_seq {
     ($s1:expr, $s2:expr) => { &format!("{}", seq!($s1, $s2)) }
 }
 
+macro_rules! pos_float {
+    ($e:expr) => { Pos(Box::new(Float($e))) }
+}
+
 #[test]
 fn constants() {
     // Floating point values specifically chosen so fractional part can be perfectly represented
@@ -31,6 +35,8 @@ fn constants() {
     assert_eq!("-3.5", format!("{}", Float(-3.5)));
     assert_eq!("NaN", format!("{}", Float(NAN)));
     assert_eq!("undefined", format!("{}", Undefined));
+    assert_eq!("false", format!("{}", Bool(false)));
+    assert_eq!("true", format!("{}", Bool(true)));
 }
 
 #[test]
@@ -53,6 +59,14 @@ fn single_binop_exprs() {
     assert_eq!("-3 * 42.5", format_exp!(Float(-3.0), Star, Float(42.5)));
     assert_eq!("22 / x", format_exp!(Float(22.0), Slash, var!("x")));
     assert_eq!("3 - -----y", format_exp!(Float(3.0), Minus, pre_dec!(pre_dec!(neg_var!("y")))));
+    assert_eq!("_L2-- == -55.5", format_exp!(post_dec!(var!("_L2")), Eql, Float(-55.5)));
+    assert_eq!("+22 != Z", format_exp!(pos_float!(22.0), Neq, var!("Z")));
+    assert_eq!("-y > xX", format_exp!(neg_var!("y"), Gt, var!("xX")));
+    assert_eq!("39 >= -76.25", format_exp!(Float(39.0), Ge, Float(-76.25)));
+    assert_eq!("+++32 < -num--", format_exp!(pre_inc!(pos_float!(32.0)), Lt, post_dec!(neg_var!("num"))));
+    assert_eq!("X_x <= 54.5", format_exp!(var!("X_x"), Le, Float(54.5)));
+    assert_eq!("12++ && x_92", format_exp!(post_inc!(Float(12.0)), And, var!("x_92")));
+    assert_eq!("99 || false", format_exp!(Float(99.0), Or, Bool(false)));
 }
 
 #[test]
@@ -65,6 +79,11 @@ fn multi_binop_exprs_no_grouping() {
         format_exp!(exp!(Float(-10.0), Star, Float(18.5)), Plus, neg_var!("some_num")));
     assert_eq!("anotherNumber - _x / 17",
         format_exp!(var!("anotherNumber"), Minus, exp!(var!("_x"), Slash, Float(17.0))));
+    assert_eq!("x <= 32 && y++ == 88.5",
+        format_exp!(exp!(var!("x"), Le, Float(32.0)), And, exp!(post_inc!(var!("y")), Eql, Float(88.5))));
+    assert_eq!("17 < +NUMBER---- * -3 + w && false || some_bool",
+        format_exp!(exp!(exp!(Float(17.0), Lt, exp!(exp!(post_dec!(post_dec!(pos_var!("NUMBER"))), Star, Float(-3.0)), Plus, var!("w"))),
+            And, Bool(false)), Or, var!("some_bool")));
     assert_eq!("_ - 18.5 + x2 * -3.25",
         format_exp!(exp!(var!("_"), Minus, Float(18.5)), Plus, exp!(var!("x2"), Star, Float(-3.25))));
     assert_eq!("NUMBER * 18.5 / 17 + ---N_4",
@@ -81,6 +100,9 @@ fn multi_binop_exprs_with_grouping() {
         format_exp!(Float(-10.0), Minus, exp!(var!("O_k"), Plus, Float(17.0))));
     assert_eq!("-10 / (O_k * 17)",
         format_exp!(Float(-10.0), Slash, exp!(var!("O_k"), Star, Float(17.0))));
+    assert_eq!("+(++(((((a || b) && c) == d) + e) * f))",
+        &format!("{}", Pos(Box::new(pre_inc!(
+            exp!(exp!(exp!(exp!(exp!(var!("a"), Or, var!("b")), And, var!("c")), Eql, var!("d")), Plus, var!("e")), Star, var!("f")))))));
     assert_eq!("(_Ok - h2o) * 17 / -3.25",
         format_exp!(exp!(var!("_Ok"), Minus, var!("h2o")), Star, exp!(Float(17.0), Slash, Float(-3.25))));
     assert_eq!("(-10 + 18.5 - 17) * -3.25",
@@ -130,7 +152,7 @@ fn decl_stmts() {
 fn seq_stmts() {
     assert_eq!("someThing = 8.25 - OTHER;\n-3 * 42.5;\n",
         format_seq!(assign!("someThing", exp!(Float(8.25), Minus, var!("OTHER"))),
-                    BareExp(exp!(Float(-3.0), Star, Float(42.5)))));
+            BareExp(exp!(Float(-3.0), Star, Float(42.5)))));
     assert_eq!("-10 / num - 17;\nvar NUM = -34.5 / _l4 + 8;\nthing2 = r * -51 + 3.5;\n", format_seq!(
         BareExp(exp!(exp!(Float(-10.0), Slash, var!("num")), Minus, Float(17.0))), seq!(
             decl!("NUM", exp!(exp!(Float(-34.5), Slash, var!("_l4")), Plus, Float(8.0))),

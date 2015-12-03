@@ -75,6 +75,8 @@ pub enum Exp {
     Defun(Option<String>, Vec<String>, Box<Stmt>),
     Float(f64),
     Neg(Box<Exp>),
+    NewObject(String, Vec<Box<Exp>>),
+    Object(Vec<(String, Box<Exp>)>),
     Pos(Box<Exp>),
     PostDec(Box<Exp>),
     PostInc(Box<Exp>),
@@ -89,7 +91,7 @@ impl Exp {
         match *self {
             Exp::BinExp(_, ref o, _) => o.precedence(),
             Exp::Bool(_) | Exp::Call(..) | Exp::Defun(..) | Exp::Float(_) |
-            Exp::Undefined | Exp::Var(_) => Precedence::Const,
+            Exp::NewObject(..) | Exp::Object(_) | Exp::Undefined | Exp::Var(_) => Precedence::Const,
             Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
             Exp::PostDec(_) | Exp::PostInc(_) | Exp::PreDec(_) | Exp::PreInc(_) => Precedence::Inc,
         }
@@ -164,12 +166,48 @@ impl Exp {
                     try!(write!(fmt, "{}", param));
                 }
 
-                try!(write!(fmt, ") {{"));
+                try!(write!(fmt, ") {{\n"));
                 try!(body.fmt_helper(&mut fmt, indent_level + 2));
-                write!(fmt, "}}")
+
+                let indent : String = (0..indent_level).map(|_| " ").collect();
+
+                write!(fmt, "{}}}", indent)
             }
             Exp::Float(f) => write!(fmt, "{}", f),
             Exp::Neg(ref e) => write!(fmt, "-{}", group!(e, Precedence::Sign)),
+            Exp::NewObject(ref name, ref args) => {
+                try!(write!(fmt, "new {}(", name));
+
+                for (i, arg) in args.iter().enumerate() {
+                    if i != 0 {
+                        try!(write!(fmt, ", "));
+                    }
+
+                    try!(write!(fmt, "{}", arg))
+                }
+
+                write!(fmt, ")")
+            }
+            Exp::Object(ref properties) => {
+                if properties.is_empty() {
+                    return write!(fmt, "{{}}");
+                }
+
+                try!(writeln!(fmt, "{{"));
+
+                let indent : String = (0..indent_level + 2).map(|_| " ").collect();
+
+                for (i, &(ref name, ref prop)) in properties.iter().enumerate() {
+                    if i != 0 {
+                        try!(writeln!(fmt, ","));
+                    }
+
+                    try!(write!(fmt, "{}{}: ", indent, name));
+                    try!(prop.fmt_helper(&mut fmt, indent_level + 2));
+                }
+
+                write!(fmt, "\n}}")
+            }
             Exp::Pos(ref e) => write!(fmt, "+{}", group!(e, Precedence::Sign)),
             Exp::PostDec(ref e) => write!(fmt, "{}--", group!(e, Precedence::Inc)),
             Exp::PostInc(ref e) => write!(fmt, "{}++", group!(e, Precedence::Inc)),
@@ -243,7 +281,7 @@ impl Stmt {
                 Ok(())
             }
             Stmt::Ret(ref e) => {
-                try!(write!(fmt, "return "));
+                try!(write!(fmt, "{}return ", indent));
                 exp_semi!(e)
             }
             Stmt::Seq(ref s1, ref s2) => {

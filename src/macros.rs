@@ -54,6 +54,39 @@ macro_rules! var {
 }
 
 #[macro_export]
+macro_rules! anon_defun {
+    (($($param:expr),*) $stmt:expr) => {
+        Defun(
+            None,
+            vec![
+                $(String::from($param)),*
+            ],
+            Box::new($stmt)
+        )
+    }
+}
+
+#[macro_export]
+macro_rules! new_obj {
+    ($name:expr) => { NewObject(String::from($name), vec![]) };
+
+    ($name:expr, $($arg:expr),*) => {
+        NewObject(String::from($name), vec![
+            $(Box::new($arg)),*
+        ])
+    }
+}
+
+#[macro_export]
+macro_rules! obj {
+    ($($name:expr, $prop:expr),*) => {
+        Object(vec![
+            $((String::from($name), Box::new($prop))),*
+        ])
+    }
+}
+
+#[macro_export]
 macro_rules! parse_exp {
     ($s:expr) => { parse_Exp($s).unwrap() }
 }

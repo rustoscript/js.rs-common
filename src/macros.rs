@@ -77,9 +77,10 @@ macro_rules! new_obj {
     }
 }
 
+
 #[macro_export]
 macro_rules! obj {
-    ($($name:expr, $prop:expr),*) => {
+    ($($name:expr => $prop:expr),*) => {
         Object(vec![
             $((String::from($name), Box::new($prop))),*
         ])

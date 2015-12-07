@@ -34,6 +34,18 @@ macro_rules! pos_var {
 }
 
 #[macro_export]
+macro_rules! instance_var {
+    ($o:expr, $name:expr) => { InstanceVar(Box::new($o), String::from($name)) }
+}
+
+#[macro_export]
+macro_rules! method {
+    ($o:expr, $name:expr, [$($arg:expr),*]) => {
+        Method(Box::new($o), String::from($name), vec![$(Box::new($arg)),*])
+    }
+}
+
+#[macro_export]
 macro_rules! assign {
     ($v:expr, $e:expr) => { Assign(String::from($v), $e) }
 }

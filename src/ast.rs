@@ -74,6 +74,8 @@ pub enum Exp {
     Call(Box<Exp>, Vec<Box<Exp>>),
     Defun(Option<String>, Vec<String>, Box<Stmt>),
     Float(f64),
+    InstanceVar(Box<Exp>, String),
+    Method(Box<Exp>, String, Vec<Box<Exp>>),
     Neg(Box<Exp>),
     NewObject(Box<Exp>, Vec<Box<Exp>>),
     Object(Vec<(String, Box<Exp>)>),
@@ -90,8 +92,9 @@ impl Exp {
     pub fn precedence(&self) -> Precedence {
         match *self {
             Exp::BinExp(_, ref o, _) => o.precedence(),
-            Exp::Bool(_) | Exp::Call(..) | Exp::Defun(..) | Exp::Float(_) |
-            Exp::NewObject(..) | Exp::Object(_) | Exp::Undefined | Exp::Var(_) => Precedence::Const,
+            Exp::Bool(_) | Exp::Call(..) | Exp::Defun(..) | Exp::Float(_) | Exp::InstanceVar(..) |
+            Exp::Method(..) | Exp::NewObject(..) | Exp::Object(_) | Exp::Undefined | Exp::Var(_) =>
+                Precedence::Const,
             Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
             Exp::PostDec(_) | Exp::PostInc(_) | Exp::PreDec(_) | Exp::PreInc(_) => Precedence::Inc,
         }
@@ -174,6 +177,20 @@ impl Exp {
                 write!(fmt, "{}}}", indent)
             }
             Exp::Float(f) => write!(fmt, "{}", f),
+            Exp::InstanceVar(ref obj, ref name) => write!(fmt, "{}.{}", obj, name),
+            Exp::Method(ref obj, ref name, ref args) => {
+                try!(write!(fmt, "{}.{}(", obj, name));
+
+                for (i, arg) in args.iter().enumerate() {
+                    if i != 0 {
+                        try!(write!(fmt, ", "));
+                    }
+
+                    try!(write!(fmt, "{}", arg));
+                }
+
+                write!(fmt, ")")
+            }
             Exp::Neg(ref e) => write!(fmt, "-{}", group!(e, Precedence::Sign)),
             Exp::NewObject(ref name, ref args) => {
                 try!(write!(fmt, "new {}(", name));

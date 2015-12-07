@@ -75,7 +75,7 @@ pub enum Exp {
     Defun(Option<String>, Vec<String>, Box<Stmt>),
     Float(f64),
     Neg(Box<Exp>),
-    NewObject(String, Vec<Box<Exp>>),
+    NewObject(Box<Exp>, Vec<Box<Exp>>),
     Object(Vec<(String, Box<Exp>)>),
     Pos(Box<Exp>),
     PostDec(Box<Exp>),

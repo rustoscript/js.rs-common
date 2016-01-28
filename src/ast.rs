@@ -77,6 +77,7 @@ pub enum Exp {
     InstanceVar(Box<Exp>, String),
     Method(Box<Exp>, String, Vec<Box<Exp>>),
     Neg(Box<Exp>),
+    Null,
     NewObject(Box<Exp>, Vec<Box<Exp>>),
     Object(Vec<(String, Box<Exp>)>),
     Pos(Box<Exp>),
@@ -93,8 +94,8 @@ impl Exp {
         match *self {
             Exp::BinExp(_, ref o, _) => o.precedence(),
             Exp::Bool(_) | Exp::Call(..) | Exp::Defun(..) | Exp::Float(_) | Exp::InstanceVar(..) |
-            Exp::Method(..) | Exp::NewObject(..) | Exp::Object(_) | Exp::Undefined | Exp::Var(_) =>
-                Precedence::Const,
+            Exp::Method(..) | Exp::NewObject(..) | Exp::Null | Exp::Object(_) | Exp::Undefined |
+            Exp::Var(_) => Precedence::Const,
             Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
             Exp::PostDec(_) | Exp::PostInc(_) | Exp::PreDec(_) | Exp::PreInc(_) => Precedence::Inc,
         }
@@ -205,6 +206,7 @@ impl Exp {
 
                 write!(fmt, ")")
             }
+            Exp::Null => write!(fmt, "null"),
             Exp::Object(ref properties) => {
                 if properties.is_empty() {
                     return write!(fmt, "{{}}");

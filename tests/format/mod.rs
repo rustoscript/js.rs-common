@@ -12,13 +12,23 @@ macro_rules! format_call {
 }
 
 macro_rules! format_anon_defun {
-    (($($param:expr),*) $stmt:expr) => { &format!("{}", anon_defun! { ($($param),*) $stmt }) }
+    (($($param:expr),*) $stmt:expr) => { &format!("{}", defun! { ($($param),*) $stmt }) }
 }
 
 macro_rules! format_defun {
     ($name:expr, ($($param:expr),*) $stmt:expr) => {
         &format!("{}", defun! { $name, ($($param),*) $stmt })
     }
+}
+
+macro_rules! format_new_obj {
+    ($name:expr) => { &format!("{}", new_obj!($name)) };
+
+    ($name:expr, $($arg:expr),*) => { &format!("{}", new_obj!($name, $($arg),*)) };
+}
+
+macro_rules! format_obj {
+    ($($name:expr => $prop:expr),*) => { &format!("{}", obj! { $($name => $prop),* }) }
 }
 
 macro_rules! format_assign {
@@ -141,6 +151,25 @@ fn defun() {
     assert_eq!("function(x, y, z) {\n}", format_anon_defun! { ("x", "y", "z") Empty });
     assert_eq!("function foo() {\n}", format_defun! { "foo", () Empty });
     assert_eq!("function foo(x, y, z) {\n}", format_defun! { "foo", ("x", "y", "z") Empty });
+}
+
+#[test]
+fn new_obj() {
+    assert_eq!("new foo()", format_new_obj!(var!("foo")));
+    assert_eq!("new foo(x, y, z)", format_new_obj!(var!("foo"), var!("x"), var!("y"), var!("z")));
+    assert_eq!("new foo(true, 17)", format_new_obj!(var!("foo"), Bool(true), Float(17.0)));
+}
+
+#[test]
+fn obj_literal() {
+    assert_eq!("{}", format_obj!());
+    assert_eq!("{\n  x: 3\n}", format_obj! { "x" => Float(3.0) });
+    assert_eq!("{\n  x: 3,\n  y: NaN\n}", format_obj! { "x" => Float(3.0), "y" => Float(NAN) });
+    assert_eq!("{\n  x: 3,\n  y: {\n    z: NaN\n}\n}",
+        format_obj! {
+            "x" => Float(3.0),
+            "y" => obj! { "z" => Float(NAN) }
+        });
 }
 
 #[test]

@@ -74,7 +74,7 @@ macro_rules! var {
 
 
 #[macro_export]
-macro_rules! anon_defun {
+macro_rules! defun {
     (($($param:expr),*) $stmt:expr) => {
         Defun(
             None,
@@ -83,11 +83,8 @@ macro_rules! anon_defun {
             ],
             Box::new($stmt)
         )
-    }
-}
+    };
 
-#[macro_export]
-macro_rules! defun {
     ($name:expr, ($($param:expr),*) $stmt:expr) => {
         Defun(
             Some(String::from($name)),
@@ -99,13 +96,12 @@ macro_rules! defun {
     }
 }
 
-
 #[macro_export]
 macro_rules! new_obj {
-    ($name:expr) => { NewObject(String::from($name), vec![]) };
+    ($name:expr) => { NewObject(Box::new($name), vec![]) };
 
     ($name:expr, $($arg:expr),*) => {
-        NewObject(String::from($name), vec![
+        NewObject(Box::new($name), vec![
             $(Box::new($arg)),*
         ])
     }

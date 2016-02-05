@@ -62,6 +62,7 @@ fn constants() {
     assert_eq!("12.25", format!("{}", Float(12.25)));
     assert_eq!("-3.5", format!("{}", Float(-3.5)));
     assert_eq!("NaN", format!("{}", Float(NAN)));
+    assert_eq!("null", format!("{}", Null));
     assert_eq!("undefined", format!("{}", Undefined));
     assert_eq!("false", format!("{}", Bool(false)));
     assert_eq!("true", format!("{}", Bool(true)));

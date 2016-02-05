@@ -31,6 +31,10 @@ macro_rules! format_obj {
     ($($name:expr => $prop:expr),*) => { &format!("{}", obj! { $($name => $prop),* }) }
 }
 
+macro_rules! format_instance_var {
+    ($o:expr, $name:expr) => { &format!("{}", instance_var!($o, $name)) }
+}
+
 macro_rules! format_assign {
     ($s:expr, $e:expr) => { &format!("{}", assign!($s, $e)) }
 }
@@ -170,6 +174,12 @@ fn obj_literal() {
             "x" => Float(3.0),
             "y" => obj! { "z" => Float(NAN) }
         });
+}
+
+#[test]
+fn instance_var() {
+    assert_eq!("x.y", format_instance_var!(var!("x"), "y"));
+    assert_eq!("{\n  y: 3\n}.y", format_instance_var!(obj! { "y" => Float(3.0) }, "y"));
 }
 
 #[test]

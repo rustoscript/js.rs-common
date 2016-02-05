@@ -7,6 +7,20 @@ macro_rules! format_exp {
     ($e1:expr, $o:expr, $e2:expr) => { &format!("{}", exp!($e1, $o, $e2)) }
 }
 
+macro_rules! format_call {
+    ($name:expr, $args:expr) => { &format!("{}", call!($name, $args)) }
+}
+
+macro_rules! format_anon_defun {
+    (($($param:expr),*) $stmt:expr) => { &format!("{}", anon_defun! { ($($param),*) $stmt }) }
+}
+
+macro_rules! format_defun {
+    ($name:expr, ($($param:expr),*) $stmt:expr) => {
+        &format!("{}", defun! { $name, ($($param),*) $stmt })
+    }
+}
+
 macro_rules! format_assign {
     ($s:expr, $e:expr) => { &format!("{}", assign!($s, $e)) }
 }
@@ -109,6 +123,24 @@ fn multi_binop_exprs_with_grouping() {
         format_exp!(exp!(exp!(Float(-10.0), Plus, Float(18.5)), Minus, Float(17.0)), Star, Float(-3.25)));
     assert_eq!("(-10 - (18.5 - 17)) / -3.25",
         format_exp!(exp!(Float(-10.0), Minus, exp!(Float(18.5), Minus, Float(17.0))), Slash, Float(-3.25)));
+}
+
+#[test]
+fn fn_calls() {
+    assert_eq!("foo()", format_call!(var!("foo"), Vec::new()));
+    assert_eq!("foo(x, y, z)", format_call!(var!("foo"), vec![var!("x"), var!("y"), var!("z")]));
+    assert_eq!("foo(12 - ++x, z)",
+        format_call!(var!("foo"), vec![exp!(Float(12.0), Minus, pre_inc!(var!("x"))), var!("z")]));
+    assert_eq!("-foo(x, y, z)",
+        &format!("{}", Neg(Box::new(call!(var!("foo"), vec![var!("x"), var!("y"), var!("z")])))));
+}
+
+#[test]
+fn defun() {
+    assert_eq!("function() {\n}", format_anon_defun! { () Empty });
+    assert_eq!("function(x, y, z) {\n}", format_anon_defun! { ("x", "y", "z") Empty });
+    assert_eq!("function foo() {\n}", format_defun! { "foo", () Empty });
+    assert_eq!("function foo(x, y, z) {\n}", format_defun! { "foo", ("x", "y", "z") Empty });
 }
 
 #[test]

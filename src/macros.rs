@@ -39,6 +39,13 @@ macro_rules! instance_var {
 }
 
 #[macro_export]
+macro_rules! call {
+    ($name:expr, $args:expr) => {
+        Call(Box::new($name), $args.into_iter().map(|x| Box::new(x)).collect())
+    }
+}
+
+#[macro_export]
 macro_rules! method {
     ($o:expr, $name:expr, [$($arg:expr),*]) => {
         Method(Box::new($o), String::from($name), vec![$(Box::new($arg)),*])
@@ -65,6 +72,7 @@ macro_rules! var {
     ($s:expr) => { Var(String::from($s)) }
 }
 
+
 #[macro_export]
 macro_rules! anon_defun {
     (($($param:expr),*) $stmt:expr) => {
@@ -77,6 +85,20 @@ macro_rules! anon_defun {
         )
     }
 }
+
+#[macro_export]
+macro_rules! defun {
+    ($name:expr, ($($param:expr),*) $stmt:expr) => {
+        Defun(
+            Some(String::from($name)),
+            vec![
+                $(String::from($param)),*
+            ],
+            Box::new($stmt)
+        )
+    }
+}
+
 
 #[macro_export]
 macro_rules! new_obj {

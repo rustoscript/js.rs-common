@@ -84,6 +84,7 @@ pub enum Exp {
     PostInc(Box<Exp>),
     PreDec(Box<Exp>),
     PreInc(Box<Exp>),
+    TypeOf(Box<Exp>),
     Undefined,
     Var(String),
 }
@@ -93,7 +94,7 @@ impl Exp {
         match *self {
             Exp::BinExp(_, ref o, _) => o.precedence(),
             Exp::Bool(_) | Exp::Call(..) | Exp::Defun(..) | Exp::Float(_) | Exp::InstanceVar(..) |
-            Exp::NewObject(..) | Exp::Null | Exp::Object(_) | Exp::Undefined |
+            Exp::NewObject(..) | Exp::Null | Exp::Object(_) | Exp::TypeOf(_) | Exp::Undefined |
             Exp::Var(_) => Precedence::Const,
             Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
             Exp::PostDec(_) | Exp::PostInc(_) | Exp::PreDec(_) | Exp::PreInc(_) => Precedence::Inc,
@@ -218,6 +219,7 @@ impl Exp {
             Exp::PostInc(ref e) => write!(fmt, "{}++", group!(e, Precedence::Inc)),
             Exp::PreDec(ref e) => write!(fmt, "--{}", group!(e, Precedence::Inc)),
             Exp::PreInc(ref e) => write!(fmt, "++{}", group!(e, Precedence::Inc)),
+            Exp::TypeOf(ref e) => write!(fmt, "typeof {}", e),
             Exp::Undefined => write!(fmt, "undefined"),
             Exp::Var(ref v) => write!(fmt, "{}", v),
         }
@@ -238,6 +240,7 @@ pub enum Stmt {
     If(Exp, Box<Stmt>, Option<Box<Stmt>>),
     Ret(Exp),
     Seq(Box<Stmt>, Box<Stmt>),
+    Throw(Box<Exp>),
     While(Exp, Box<Stmt>),
 }
 
@@ -292,6 +295,9 @@ impl Stmt {
             Stmt::Seq(ref s1, ref s2) => {
                 try!(s1.fmt_helper(&mut fmt, indent_level));
                 s2.fmt_helper(&mut fmt, indent_level)
+            }
+            Stmt::Throw(ref e) => {
+                write!(fmt, "{}throw {}", indent, e)
             }
             Stmt::While(ref exp, ref stmt) => {
                 try!(write!(fmt, "{}while ({}) {{\n", indent, exp));

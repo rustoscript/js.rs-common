@@ -85,6 +85,7 @@ pub enum Exp {
     PreDec(Box<Exp>),
     PreInc(Box<Exp>),
     TypeOf(Box<Exp>),
+    Str(String),
     Undefined,
     Var(String),
 }
@@ -93,11 +94,9 @@ impl Exp {
     pub fn precedence(&self) -> Precedence {
         match *self {
             Exp::BinExp(_, ref o, _) => o.precedence(),
-            Exp::Bool(_) | Exp::Call(..) | Exp::Defun(..) | Exp::Float(_) | Exp::InstanceVar(..) |
-            Exp::NewObject(..) | Exp::Null | Exp::Object(_) | Exp::TypeOf(_) | Exp::Undefined |
-            Exp::Var(_) => Precedence::Const,
             Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
             Exp::PostDec(_) | Exp::PostInc(_) | Exp::PreDec(_) | Exp::PreInc(_) => Precedence::Inc,
+            _ => Precedence::Const
         }
     }
 }
@@ -220,6 +219,7 @@ impl Exp {
             Exp::PreDec(ref e) => write!(fmt, "--{}", group!(e, Precedence::Inc)),
             Exp::PreInc(ref e) => write!(fmt, "++{}", group!(e, Precedence::Inc)),
             Exp::TypeOf(ref e) => write!(fmt, "typeof {}", e),
+            Exp::Str(ref s) => write!(fmt, "\"{}\"", s),
             Exp::Undefined => write!(fmt, "undefined"),
             Exp::Var(ref v) => write!(fmt, "{}", v),
         }

@@ -240,6 +240,7 @@ pub enum Stmt {
     If(Exp, Box<Stmt>, Option<Box<Stmt>>),
     Ret(Exp),
     Seq(Box<Stmt>, Box<Stmt>),
+    Try(Box<Stmt>, Option<Box<Stmt>>, Option<Box<Stmt>>),
     Throw(Box<Exp>),
     While(Exp, Box<Stmt>),
 }
@@ -298,6 +299,25 @@ impl Stmt {
             }
             Stmt::Throw(ref e) => {
                 write!(fmt, "{}throw {}", indent, e)
+            }
+            Stmt::Try(ref stmt, ref o1, ref o2) => {
+                try!(write!(fmt, "{}try {{\n", indent));
+                try!(stmt.fmt_helper(&mut fmt, indent_level + 2));
+                try!(write!(fmt, "{}}}\n", indent));
+
+                if let &Some(ref catch_stmt) = o1 {
+                    try!(write!(fmt, "{}catch {{\n", indent));
+                    try!(catch_stmt.fmt_helper(&mut fmt, indent_level + 2));
+                    try!(write!(fmt, "{}}}\n", indent));
+                }
+
+                if let &Some(ref finally_stmt) = o2 {
+                    try!(write!(fmt, "{}finally {{\n", indent));
+                    try!(finally_stmt.fmt_helper(&mut fmt, indent_level + 2));
+                    try!(write!(fmt, "{}}}\n", indent));
+                }
+
+                Ok(())
             }
             Stmt::While(ref exp, ref stmt) => {
                 try!(write!(fmt, "{}while ({}) {{\n", indent, exp));

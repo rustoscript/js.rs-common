@@ -246,7 +246,7 @@ pub enum Stmt {
 }
 
 impl Stmt {
-    fn fmt_helper(&self, mut fmt: &mut Formatter, indent_level: i32) -> Result<(), Error> {
+    pub fn fmt_helper(&self, mut fmt: &mut Formatter, indent_level: i32) -> Result<(), Error> {
         macro_rules! indented_stmt {
             ($stmt:expr) => {
                 try!($stmt.fmt_helper(&mut fmt, indent_level + 2))

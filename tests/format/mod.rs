@@ -151,14 +151,6 @@ fn fn_calls() {
 }
 
 #[test]
-fn defun() {
-    assert_eq!("function() {\n}", format_anon_defun! { () Empty });
-    assert_eq!("function(x, y, z) {\n}", format_anon_defun! { ("x", "y", "z") Empty });
-    assert_eq!("function foo() {\n}", format_defun! { "foo", () Empty });
-    assert_eq!("function foo(x, y, z) {\n}", format_defun! { "foo", ("x", "y", "z") Empty });
-}
-
-#[test]
 fn new_obj() {
     assert_eq!("new foo()", format_new_obj!(var!("foo")));
     assert_eq!("new foo(x, y, z)", format_new_obj!(var!("foo"), var!("x"), var!("y"), var!("z")));

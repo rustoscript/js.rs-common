@@ -237,6 +237,7 @@ pub enum Stmt {
     Assign(String, Exp),
     BareExp(Exp),
     Decl(String, Exp),
+    Empty,
     If(Exp, Box<Stmt>, Option<Box<Stmt>>),
     Ret(Exp),
     Seq(Box<Stmt>, Box<Stmt>),
@@ -275,6 +276,7 @@ impl Stmt {
                 try!(write!(fmt, "{}var {} = ", indent, v));
                 exp_semi!(exp)
             }
+            Stmt::Empty => Ok(()),
             Stmt::If(ref e, ref s, ref els) => {
                 try!(write!(fmt, "{}if (", indent));
                 try!(e.fmt_helper(&mut fmt, indent_level + 2));

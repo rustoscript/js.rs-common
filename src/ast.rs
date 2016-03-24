@@ -5,11 +5,13 @@ pub enum BinOp {
     And,
     Ge,
     Gt,
-    Eql,
+    Eql,       // ==
+    EqlStrict, // ===
     Le,
     Lt,
     Minus,
-    Neq,
+    Neq,       // !=
+    NeqStrict, // !==
     Or,
     Plus,
     Slash,
@@ -33,7 +35,8 @@ impl BinOp {
         match *self {
             BinOp::And => Precedence::And,
             BinOp::Ge | BinOp::Gt | BinOp::Eql | BinOp::Le | BinOp::Lt |
-            BinOp::Neq => Precedence::Equality,
+                BinOp::Neq | BinOp::EqlStrict | BinOp::NeqStrict
+                => Precedence::Equality,
             BinOp::Or => Precedence::Or,
             BinOp::Minus | BinOp::Plus => Precedence::Add,
             BinOp::Slash | BinOp::Star => Precedence::Mult,
@@ -55,10 +58,12 @@ impl Display for BinOp {
             BinOp::Ge => write!(fmt, ">="),
             BinOp::Gt => write!(fmt, ">"),
             BinOp::Eql => write!(fmt, "=="),
+            BinOp::EqlStrict => write!(fmt, "==="),
             BinOp::Le => write!(fmt, "<="),
             BinOp::Lt => write!(fmt, "<"),
             BinOp::Minus => write!(fmt, "-"),
             BinOp::Neq => write!(fmt, "!="),
+            BinOp::NeqStrict => write!(fmt, "!=="),
             BinOp::Or => write!(fmt, "||"),
             BinOp::Plus => write!(fmt, "+"),
             BinOp::Slash => write!(fmt, "/"),

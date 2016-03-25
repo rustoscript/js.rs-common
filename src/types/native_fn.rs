@@ -5,7 +5,7 @@ use super::binding::Binding;
 use super::js_var::{JsPtrEnum, JsVar};
 
 pub trait JsScope {
-    fn alloc(&mut self, var: JsVar);
+    fn alloc(&mut self, var: JsVar, ptr: Option<JsPtrEnum>) -> Result<Binding, GcError>;
     fn load(&self, bnd: &Binding) -> Result<(JsVar, Option<JsPtrEnum>), GcError>;
     fn store(&mut self, var: JsVar, ptr: Option<JsPtrEnum>) -> Result<(), GcError>;
 }

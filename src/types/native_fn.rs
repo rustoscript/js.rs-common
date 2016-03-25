@@ -11,7 +11,7 @@ pub trait JsScope {
 }
 
 #[derive(Clone)]
-pub struct NativeFn(fn(Box<JsScope>, Vec<JsVar>) -> JsVar);
+pub struct NativeFn(fn(Box<JsScope>, Vec<(JsVar, Option<JsPtrEnum>)>) -> JsVar);
 
 impl Debug for NativeFn {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {

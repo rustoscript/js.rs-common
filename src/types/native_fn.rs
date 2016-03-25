@@ -7,9 +7,10 @@ use super::js_var::{JsPtrEnum, JsVar};
 pub struct NativeFn(fn(Box<Backend>, Vec<(JsVar, Option<JsPtrEnum>)>) -> (JsVar, Option<JsPtrEnum>));
 
 impl NativeFn {
-  fn new(func: fn(Box<Backend>, Vec<(JsVar, Option<JsPtrEnum>)>) -> (JsVar, Option<JsPtrEnum>)) -> NativeFn {
-    NativeFn(func)
-  }
+    pub fn new(func: fn(Box<Backend>, Vec<(JsVar, Option<JsPtrEnum>)>) -> (JsVar, Option<JsPtrEnum>)) -> NativeFn 
+{
+      NativeFn(func)
+    }
 }
 
 impl Debug for NativeFn {

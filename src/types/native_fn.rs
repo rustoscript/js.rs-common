@@ -11,6 +11,11 @@ impl NativeFn {
 {
       NativeFn(func)
     }
+
+    pub fn call(&self, backend: Box<Backend>, args: Vec<(JsVar, Option<JsPtrEnum>)>) -> (JsVar, 
+Option<JsPtrEnum>) {
+        self.0(backend, args)
+    }
 }
 
 impl Debug for NativeFn {

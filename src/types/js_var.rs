@@ -43,6 +43,16 @@ impl JsVar {
         var
     }
 
+    pub fn deanonymize(&mut self, binding: &str) -> bool {
+        if self.binding.is_anon() {
+            self.unique = UniqueBinding::mangle_str(binding);
+            self.binding = Binding::new(binding.to_owned());
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn type_of(&self) -> String {
         self.t.type_of()
     }

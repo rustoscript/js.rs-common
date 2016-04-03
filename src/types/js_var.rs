@@ -54,7 +54,7 @@ impl JsVar {
     }
 
     pub fn rename(&mut self, binding: &str) -> bool {
-        if self.binding.var_name() == binding {
+        if self.binding.var_name() != binding {
             self.binding = Binding::new(binding.to_owned());
             true
         } else {

@@ -25,6 +25,10 @@ impl Binding {
     pub fn is_anon(&self) -> bool {
         self.0.contains(">anon_js_var<")
     }
+
+    pub fn var_name(&self) -> &str {
+        &self.0
+    }
 }
 
 impl fmt::Display for Binding {

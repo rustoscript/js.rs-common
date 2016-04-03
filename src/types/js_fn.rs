@@ -9,11 +9,11 @@ use ast::Stmt;
 pub struct JsFnStruct {
     pub name: Option<String>,
     pub params: Vec<String>,
-    pub stmt: Stmt,
+    pub stmt: Vec<Stmt>,
 }
 
 impl JsFnStruct {
-    pub fn new(name: &Option<String>, params: &Vec<String>, block: &Stmt) -> JsFnStruct {
+    pub fn new(name: &Option<String>, params: &Vec<String>, block: &Vec<Stmt>) -> JsFnStruct {
         JsFnStruct {
             name: name.clone(),
             params: params.clone(),
@@ -35,7 +35,9 @@ impl Display for JsFnStruct {
         }
 
         try!(write!(fmt, ") {{\n"));
-        try!(self.stmt.fmt_helper(&mut fmt, 2));
+        for s in &self.stmt {
+            try!(s.fmt_helper(&mut fmt, 2));
+        }
         write!(fmt, "\n}}")
     }
 }

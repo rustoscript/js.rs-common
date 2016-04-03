@@ -81,7 +81,7 @@ macro_rules! defun {
             vec![
                 $(String::from($param)),*
             ],
-            Box::new($stmt)
+            vec![$stmt]
         )
     };
 
@@ -91,7 +91,7 @@ macro_rules! defun {
             vec![
                 $(String::from($param)),*
             ],
-            Box::new($stmt)
+            vec![$stmt]
         )
     }
 }

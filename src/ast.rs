@@ -77,7 +77,7 @@ pub enum Exp {
     BinExp(Box<Exp>, BinOp, Box<Exp>),
     Bool(bool),
     Call(Box<Exp>, Vec<Box<Exp>>),
-    Defun(Option<String>, Vec<String>, Box<Stmt>),
+    Defun(Option<String>, Vec<String>, Vec<Stmt>),
     Float(f64),
     InstanceVar(Box<Exp>, String),
     Neg(Box<Exp>),
@@ -118,6 +118,14 @@ macro_rules! group {
 
 impl Exp {
     fn fmt_helper(&self, mut fmt: &mut Formatter, indent_level: i32) -> Result<(), Error> {
+        macro_rules! stmt_block {
+            ($stmt:expr) => {
+                for s in $stmt {
+                    try!(s.fmt_helper(&mut fmt, indent_level + 2))
+                }
+            }
+        }
+
         match *self {
             Exp::BinExp(ref e1, ref o, ref e2) => {
                 let prec = self.precedence();
@@ -175,7 +183,7 @@ impl Exp {
                 }
 
                 try!(write!(fmt, ") {{\n"));
-                try!(body.fmt_helper(&mut fmt, indent_level + 2));
+                stmt_block!(body);
 
                 let indent : String = (0..indent_level).map(|_| " ").collect();
 
@@ -243,19 +251,27 @@ pub enum Stmt {
     BareExp(Exp),
     Decl(String, Exp),
     Empty,
-    If(Exp, Box<Stmt>, Option<Box<Stmt>>),
+    If(Exp, Vec<Stmt>, Vec<Stmt>),
     Ret(Exp),
     Seq(Box<Stmt>, Box<Stmt>),
-    Try(Box<Stmt>, Option<Box<Stmt>>, Option<Box<Stmt>>),
+    Try(Vec<Stmt>, Vec<Stmt>, Vec<Stmt>),
     Throw(Box<Exp>),
-    While(Exp, Box<Stmt>),
+    While(Exp, Vec<Stmt>),
 }
 
 impl Stmt {
     pub fn fmt_helper(&self, mut fmt: &mut Formatter, indent_level: i32) -> Result<(), Error> {
-        macro_rules! indented_stmt {
+        macro_rules! stmt_block {
             ($stmt:expr) => {
-                try!($stmt.fmt_helper(&mut fmt, indent_level + 2))
+                for s in $stmt {
+                    try!(s.fmt_helper(&mut fmt, indent_level + 2))
+                }
+            }
+        }
+
+        macro_rules! indented_stmt {
+            ($s:expr) => {
+                try!($s.fmt_helper(&mut fmt, indent_level + 2))
             }
         }
 
@@ -286,13 +302,17 @@ impl Stmt {
                 try!(write!(fmt, "{}if (", indent));
                 try!(e.fmt_helper(&mut fmt, indent_level + 2));
                 try!(writeln!(fmt, ") {{\n"));
-                indented_stmt!(s);
+                stmt_block!(s);
 
-                if let &Some(ref stmt) = els {
-                    try!(write!(fmt, "{}else {{\n", indent));
-                    indented_stmt!(stmt);
-                    try!(write!(fmt, "{}}}\n", indent));
+                if els.len() > 0 {
+                    stmt_block!(s);
                 }
+
+                //if let &Some(ref stmt) = els {
+                //    try!(write!(fmt, "{}else {{\n", indent));
+                //    indented_stmt!(stmt);
+                //    try!(write!(fmt, "{}}}\n", indent));
+                //}
 
                 Ok(())
             }
@@ -307,20 +327,20 @@ impl Stmt {
             Stmt::Throw(ref e) => {
                 write!(fmt, "{}throw {}", indent, e)
             }
-            Stmt::Try(ref stmt, ref o1, ref o2) => {
+            Stmt::Try(ref stmt, ref catch_block, ref finally_block) => {
                 try!(write!(fmt, "{}try {{\n", indent));
-                try!(stmt.fmt_helper(&mut fmt, indent_level + 2));
+                stmt_block!(stmt);
                 try!(write!(fmt, "{}}}\n", indent));
 
-                if let &Some(ref catch_stmt) = o1 {
+                if catch_block.len() > 0 {
                     try!(write!(fmt, "{}catch {{\n", indent));
-                    try!(catch_stmt.fmt_helper(&mut fmt, indent_level + 2));
+                    stmt_block!(catch_block);
                     try!(write!(fmt, "{}}}\n", indent));
                 }
 
-                if let &Some(ref finally_stmt) = o2 {
+                if finally_block.len() > 0 {
                     try!(write!(fmt, "{}finally {{\n", indent));
-                    try!(finally_stmt.fmt_helper(&mut fmt, indent_level + 2));
+                    stmt_block!(finally_block);
                     try!(write!(fmt, "{}}}\n", indent));
                 }
 
@@ -328,7 +348,7 @@ impl Stmt {
             }
             Stmt::While(ref exp, ref stmt) => {
                 try!(write!(fmt, "{}while ({}) {{\n", indent, exp));
-                try!(stmt.fmt_helper(&mut fmt, indent_level + 2));
+                stmt_block!(stmt);
                 write!(fmt, "{}}}\n", indent)
             }
         }

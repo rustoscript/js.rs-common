@@ -16,6 +16,7 @@ pub struct JsObjStruct {
 }
 
 impl JsObjStruct {
+    #[allow(unused_variables)]
     pub fn new<T: Allocator>(proto: JsProto, name: &str,
                              kv_tuples: Vec<(JsKey, JsVar, Option<JsPtrEnum>)>,
                              allocator: &mut T) -> JsObjStruct {

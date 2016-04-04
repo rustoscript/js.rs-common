@@ -8,7 +8,7 @@ use super::allocator::Allocator;
 use super::binding::UniqueBinding;
 use super::js_var::{JsVar, JsKey, JsType, JsPtrEnum};
 
-#[derive(Clone, Debug, HeapSizeOf)]
+#[derive(Clone, Debug)]
 pub struct JsObjStruct {
     pub proto: JsProto,
     pub name: String,

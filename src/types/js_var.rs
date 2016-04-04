@@ -9,7 +9,7 @@ use super::js_obj::JsObjStruct;
 use super::js_str::JsStrStruct;
 use super::native_fn::NativeFn;
 
-#[derive(Clone, Debug, HeapSizeOf)]
+#[derive(Clone, Debug)]
 pub struct JsVar {
     pub unique: UniqueBinding,
     pub binding: Binding,
@@ -89,7 +89,7 @@ impl PartialEq for JsVar {
 
 impl Eq for JsVar {}
 
-#[derive(Clone, Debug, HeapSizeOf)]
+#[derive(Clone, Debug)]
 pub enum JsPtrEnum {
     JsSym(String),
     JsStr(JsStrStruct),
@@ -110,7 +110,7 @@ impl Display for JsPtrEnum {
     }
 }
 
-#[derive(Clone, Debug, HeapSizeOf)]
+#[derive(Clone, Debug)]
 pub enum JsPtrTag {
     JsSym,
     JsStr,
@@ -143,7 +143,7 @@ impl JsPtrTag {
     }
 }
 
-#[derive(Clone, Debug, HeapSizeOf)]
+#[derive(Clone, Debug)]
 pub enum JsType {
     JsUndef,
     JsNum(f64),
@@ -190,7 +190,7 @@ impl PartialEq for JsType {
 
 impl Eq for JsType {}
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, HeapSizeOf)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum JsKey {
     JsStr(JsStrStruct),
     JsSym(String),

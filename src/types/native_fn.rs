@@ -13,9 +13,8 @@ pub struct NativeFn(fn(Rc<RefCell<Backend>>,
 
 impl NativeFn {
     pub fn new(func: fn(Rc<RefCell<Backend>>, Option<JsPtrEnum>,
-               Vec<(JsVar, Option<JsPtrEnum>)>) -> (JsVar, Option<JsPtrEnum>)) -> NativeFn
-{
-      NativeFn(func)
+               Vec<(JsVar, Option<JsPtrEnum>)>) -> (JsVar, Option<JsPtrEnum>)) -> NativeFn {
+        NativeFn(func)
     }
 
     pub fn call(&self, backend: Rc<RefCell<Backend>>, this: Option<JsPtrEnum>,

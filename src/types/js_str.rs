@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter, Error};
 use std::string::String;
 
 // `string`
-#[derive(Clone, Debug, Eq, PartialEq, Hash, HeapSizeOf)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct JsStrStruct {
     pub text: String,
 }

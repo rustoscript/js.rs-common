@@ -5,6 +5,4 @@ authors = ["Saghm Rossi <saghmrossi@gmail.com>"]
 license = "MIT"
 
 [dependencies]
-heapsize = "0.3"
-heapsize_plugin = "0.1.4"
 uuid = "0.1"

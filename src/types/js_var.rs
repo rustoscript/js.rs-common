@@ -8,6 +8,7 @@ use super::js_fn::JsFnStruct;
 use super::js_obj::JsObjStruct;
 use super::js_str::JsStrStruct;
 use super::native_fn::NativeFn;
+use super::native_var::NativeVar;
 
 #[derive(Clone, Debug)]
 pub struct JsVar {
@@ -96,6 +97,7 @@ pub enum JsPtrEnum {
     JsObj(JsObjStruct),
     JsFn(JsFnStruct),
     NativeFn(NativeFn),
+    NativeVar(NativeVar),
 }
 
 impl Display for JsPtrEnum {
@@ -106,6 +108,7 @@ impl Display for JsPtrEnum {
             &JsPtrEnum::JsObj(ref o) => write!(fmt, "{}", o),
             &JsPtrEnum::JsFn(ref f) => write!(fmt, "{}", f),
             &JsPtrEnum::NativeFn(_) => write!(fmt, "[native code]"),
+            &JsPtrEnum::NativeVar(ref v) => write!(fmt, "{}", v.var),
         }
     }
 }
@@ -117,6 +120,7 @@ pub enum JsPtrTag {
     JsObj,
     JsFn { name: Option<String> },
     NativeFn { name: String },
+    NativeVar { type_string: String },
 }
 
 impl JsPtrTag {
@@ -126,7 +130,8 @@ impl JsPtrTag {
             (&JsPtrTag::JsStr, &JsPtrEnum::JsStr(_)) |
             (&JsPtrTag::JsObj, &JsPtrEnum::JsObj(_)) |
             (&JsPtrTag::JsFn{..},  &JsPtrEnum::JsFn(_)) |
-            (&JsPtrTag::NativeFn{..}, &JsPtrEnum::NativeFn(_)) => true,
+            (&JsPtrTag::NativeFn{..}, &JsPtrEnum::NativeFn(_)) |
+            (&JsPtrTag::NativeVar{..}, &JsPtrEnum::NativeVar(_)) => true,
             _ => false
         }
     }
@@ -137,6 +142,7 @@ impl JsPtrTag {
             JsPtrTag::JsStr => "string",
             JsPtrTag::JsObj => "object",
             JsPtrTag::JsFn{..} | JsPtrTag::NativeFn{..} => "function",
+            JsPtrTag::NativeVar{ ref type_string } => return type_string.to_owned(),
         };
 
         String::from(s)

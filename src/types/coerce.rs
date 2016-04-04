@@ -2,6 +2,7 @@ use std::f64::NAN;
 
 use super::js_var::{JsPtrEnum, JsPtrTag, JsType, JsVar};
 use super::js_var::JsType::*;
+use super::native_var::NativeVar;
 
 pub trait AsBool {
     fn as_bool(&self) -> bool;
@@ -80,6 +81,7 @@ impl AsString for JsType {
             JsPtr(JsPtrTag::JsObj) => "{ ... }",
             JsPtr(JsPtrTag::JsFn{..}) => "function() { ... }",
             JsPtr(JsPtrTag::NativeFn{..}) => "function() { [native code] }",
+            JsPtr(JsPtrTag::NativeVar{..}) => "[native code]",
         };
 
         String::from(s)
@@ -100,6 +102,7 @@ impl AsString for JsPtrEnum {
             // restructuring before we can support this.
             JsPtrEnum::JsFn(_) => String::from("[function]"),
             JsPtrEnum::NativeFn(_) => String::from("[native function]"),
+            JsPtrEnum::NativeVar(NativeVar { ref var, ref ptr, ..}) => ptr.as_ref().map(|p| p.as_string()).unwrap_or(var.t.as_string()),
         }
     }
 }

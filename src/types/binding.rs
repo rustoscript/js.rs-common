@@ -2,10 +2,10 @@ use std::fmt;
 
 use uuid::Uuid;
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, HeapSizeOf, PartialEq)]
 pub struct Binding(pub String);
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, HeapSizeOf, PartialEq)]
 pub struct UniqueBinding(pub String);
 
 impl Binding {

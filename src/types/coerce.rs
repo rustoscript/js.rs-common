@@ -1,5 +1,6 @@
 use std::f64::NAN;
 
+use super::js_str::JsStrStruct;
 use super::js_var::{JsPtrEnum, JsPtrTag, JsType, JsVar};
 use super::js_var::JsType::*;
 use super::native_var::NativeVar;
@@ -45,18 +46,27 @@ impl AsNumber for JsVar {
             JsNull => 0f64,
             JsNum(n) => n,
             JsPtr(_) => NAN,
-            //JsString(ref s) =>
-            //    if s.len() == 0 {
-            //        JsNumber(0f64)
-            //    } else {
-            //        let num = s.parse();
-            //        match num {
-            //            Ok(n)  => JsNumber(n),
-            //            Err(_) => JsNumber(NAN),
-            //        }
-            //    },
-            //JsSymbol(_) => panic!("Cannot convert a Symbol to a number."),
-            //JsObject | JsError(_) | JsFunction(_, _, _) => JsNumber(NAN),
+        }
+    }
+}
+
+impl AsNumber for JsPtrEnum {
+    fn as_number(&self) -> f64 {
+        match self {
+            // TODO: Change this to throw a TypeError
+            &JsPtrEnum::JsSym(_) => panic!("Cannot convert a Symbol to a number."),
+            &JsPtrEnum::JsStr(JsStrStruct { ref text }) => {
+                if text.len() == 0 {
+                    return 0.0
+                }
+
+                text.parse().unwrap_or(NAN)
+            }
+            &JsPtrEnum::NativeVar(NativeVar { ref var, ref ptr, .. }) => match (var, ptr) {
+                (_, &Some(ref ptr)) => ptr.as_number(),
+                (ref var, &None) => var.as_number(),
+            },
+            _ => NAN
         }
     }
 }

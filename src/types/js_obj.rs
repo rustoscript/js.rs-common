@@ -4,11 +4,13 @@ use std::fmt::{Display, Formatter, Error};
 use std::string::String;
 use std::vec::Vec;
 
+use heapsize::HeapSizeOf;
+
 use super::allocator::Allocator;
 use super::binding::UniqueBinding;
 use super::js_var::{JsVar, JsKey, JsType, JsPtrEnum};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, HeapSizeOf)]
 pub struct JsObjStruct {
     pub proto: JsProto,
     pub name: String,

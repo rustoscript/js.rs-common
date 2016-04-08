@@ -254,7 +254,7 @@ pub enum Stmt {
     If(Exp, Vec<Stmt>, Vec<Stmt>),
     Ret(Exp),
     Seq(Box<Stmt>, Box<Stmt>),
-    Try(Vec<Stmt>, Vec<Stmt>, Vec<Stmt>),
+    Try(Vec<Stmt>, Vec<Stmt>, String, Vec<Stmt>), // try block, catch block, catch variable, finally block
     Throw(Box<Exp>),
     While(Exp, Vec<Stmt>),
 }

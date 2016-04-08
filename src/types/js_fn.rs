@@ -1,13 +1,11 @@
 use std::fmt::{Display, Formatter, Error};
 
-use heapsize::HeapSizeOf;
-
 use ast::Stmt;
 
 // For storing functions.
 // In the future, this will have to store some sense of local variable scope,
 // to deal with closures.
-#[derive(Clone, Debug, HeapSizeOf)]
+#[derive(Clone, Debug)]
 pub struct JsFnStruct {
     pub name: Option<String>,
     pub params: Vec<String>,

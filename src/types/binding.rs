@@ -1,12 +1,11 @@
 use std::fmt;
 
-use heapsize::HeapSizeOf;
 use uuid::Uuid;
 
-#[derive(Clone, Debug, Eq, Hash, HeapSizeOf, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Binding(pub String);
 
-#[derive(Clone, Debug, Eq, Hash, HeapSizeOf, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct UniqueBinding(pub String);
 
 impl Binding {

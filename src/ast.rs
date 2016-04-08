@@ -1,6 +1,8 @@
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+use heapsize::HeapSizeOf;
+
+#[derive(Clone, Debug, PartialEq, Eq, HeapSizeOf)]
 pub enum BinOp {
     And,
     Ge,
@@ -18,7 +20,7 @@ pub enum BinOp {
     Star,
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, HeapSizeOf)]
 pub enum Precedence {
     Const = 110,
     Sign = 100,
@@ -72,7 +74,7 @@ impl Display for BinOp {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, HeapSizeOf)]
 pub enum Exp {
     BinExp(Box<Exp>, BinOp, Box<Exp>),
     Bool(bool),
@@ -245,7 +247,7 @@ impl Display for Exp {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, HeapSizeOf)]
 pub enum Stmt {
     Assign(String, Exp),
     BareExp(Exp),

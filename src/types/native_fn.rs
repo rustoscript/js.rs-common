@@ -5,8 +5,9 @@ use std::rc::Rc;
 use backend::Backend;
 use super::js_var::{JsPtrEnum, JsVar};
 
-#[derive(Clone)]
-pub struct NativeFn(fn(Rc<RefCell<Backend>>,
+#[derive(Clone, HeapSizeOf)]
+pub struct NativeFn(#[ignore_heap_size_of = "function pointer"]
+                    fn(Rc<RefCell<Backend>>,
                        Option<JsPtrEnum>,
                        Vec<(JsVar, Option<JsPtrEnum>)>)
                     -> (JsVar, Option<JsPtrEnum>));

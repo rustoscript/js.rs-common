@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter, Error};
 use std::string::String;
 use std::vec::Vec;
 
-use super::allocator::Allocator;
+use alloc_box::AllocBox;
 use super::binding::UniqueBinding;
 use super::js_var::{JsVar, JsKey, JsType, JsPtrEnum};
 
@@ -17,9 +17,8 @@ pub struct JsObjStruct {
 
 impl JsObjStruct {
     #[allow(unused_variables)]
-    pub fn new<T: Allocator>(proto: JsProto, name: &str,
-                             kv_tuples: Vec<(JsKey, JsVar, Option<JsPtrEnum>)>,
-                             allocator: &mut T) -> JsObjStruct {
+    pub fn new(proto: JsProto, name: &str, kv_tuples: Vec<(JsKey, JsVar, Option<JsPtrEnum>)>,
+               allocator: &mut AllocBox) -> JsObjStruct {
         JsObjStruct {
             proto: None,
             name: String::from(name),
@@ -32,7 +31,7 @@ impl JsObjStruct {
         }
     }
 
-    pub fn add_key<T: Allocator>(&mut self, k: JsKey, v: JsVar, ptr: Option<JsPtrEnum>, allocator: &mut T) {
+    pub fn add_key(&mut self, k: JsKey, v: JsVar, ptr: Option<JsPtrEnum>, allocator: &mut AllocBox) {
         // If the key already exists, potentially condemn its pointer, which is being overwritten.
         if let Some(var) = self.dict.get(&k) {
             match var.t {

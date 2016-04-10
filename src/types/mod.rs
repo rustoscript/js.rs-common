@@ -1,4 +1,3 @@
-pub mod allocator;
 pub mod binding;
 pub mod coerce;
 pub mod js_obj;

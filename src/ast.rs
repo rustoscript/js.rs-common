@@ -254,7 +254,8 @@ pub enum Stmt {
     If(Exp, Vec<Stmt>, Vec<Stmt>),
     Ret(Exp),
     Seq(Box<Stmt>, Box<Stmt>),
-    Try(Vec<Stmt>, Vec<Stmt>, Vec<Stmt>),
+    // try block, catch variable, catch block, finally block
+    Try(Vec<Stmt>, String, Vec<Stmt>, Vec<Stmt>),
     Throw(Box<Exp>),
     While(Exp, Vec<Stmt>),
 }
@@ -327,13 +328,13 @@ impl Stmt {
             Stmt::Throw(ref e) => {
                 write!(fmt, "{}throw {}", indent, e)
             }
-            Stmt::Try(ref stmt, ref catch_block, ref finally_block) => {
+            Stmt::Try(ref stmt, ref catch_var, ref catch_block, ref finally_block) => {
                 try!(write!(fmt, "{}try {{\n", indent));
                 stmt_block!(stmt);
                 try!(write!(fmt, "{}}}\n", indent));
 
                 if catch_block.len() > 0 {
-                    try!(write!(fmt, "{}catch {{\n", indent));
+                    try!(write!(fmt, "{}catch ({}) {{\n", catch_var, indent));
                     stmt_block!(catch_block);
                     try!(write!(fmt, "{}}}\n", indent));
                 }

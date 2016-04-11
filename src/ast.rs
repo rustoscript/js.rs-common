@@ -2,20 +2,32 @@ use std::fmt::{Display, Error, Formatter};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BinOp {
-    And,
     Ge,
     Gt,
     Eql,       // ==
     EqlStrict, // ===
-    Le,
-    Lt,
-    Minus,
     Neq,       // !=
     NeqStrict, // !==
+    Le,
+    Lt,
+
+    And,
     Or,
+
+    BitOr,
+    BitXor,
+    BitAnd,
+
+    ShiftLeft,
+    ShiftRight,
+    ShiftRightUnsigned,
+
+    Minus,
     Plus,
     Slash,
     Star,
+    Exponent,
+    Mod,
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -25,7 +37,12 @@ pub enum Precedence {
     Inc = 90,
     Mult = 70,
     Add = 60,
+    Shift = 52,
+    Cmp = 51,
     Equality = 50,
+    BitAnd = 43,
+    BitXor = 42,
+    BitOr = 41,
     And = 40,
     Or = 30,
 }
@@ -34,12 +51,15 @@ impl BinOp {
     pub fn precedence(&self) -> Precedence {
         match *self {
             BinOp::And => Precedence::And,
-            BinOp::Ge | BinOp::Gt | BinOp::Eql | BinOp::Le | BinOp::Lt |
-                BinOp::Neq | BinOp::EqlStrict | BinOp::NeqStrict
-                => Precedence::Equality,
+            BinOp::Ge | BinOp::Gt | BinOp::Le | BinOp::Lt => Precedence::Cmp,
+            BinOp::Eql | BinOp::Neq | BinOp::EqlStrict | BinOp::NeqStrict => Precedence::Equality,
             BinOp::Or => Precedence::Or,
+            BinOp::BitOr => Precedence::BitOr,
+            BinOp::BitXor => Precedence::BitXor,
+            BinOp::BitAnd => Precedence::BitAnd,
             BinOp::Minus | BinOp::Plus => Precedence::Add,
-            BinOp::Slash | BinOp::Star => Precedence::Mult,
+            BinOp::Slash | BinOp::Star | BinOp::Exponent | BinOp::Mod => Precedence::Mult,
+            BinOp::ShiftLeft | BinOp::ShiftRight | BinOp::ShiftRightUnsigned => Precedence::Shift,
         }
     }
 
@@ -68,6 +88,14 @@ impl Display for BinOp {
             BinOp::Plus => write!(fmt, "+"),
             BinOp::Slash => write!(fmt, "/"),
             BinOp::Star => write!(fmt, "*"),
+            BinOp::Exponent => write!(fmt, "**"),
+            BinOp::Mod => write!(fmt, "%"),
+            BinOp::BitXor => write!(fmt, "^"),
+            BinOp::BitOr => write!(fmt, "|"),
+            BinOp::BitAnd => write!(fmt, "&"),
+            BinOp::ShiftLeft => write!(fmt, "<<"),
+            BinOp::ShiftRight => write!(fmt, ">>"),
+            BinOp::ShiftRightUnsigned => write!(fmt, ">>>"),
         }
     }
 }

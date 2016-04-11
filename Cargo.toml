@@ -5,4 +5,4 @@ authors = ["Saghm Rossi <saghmrossi@gmail.com>"]
 license = "MIT"
 
 [dependencies]
-uuid = "0.1"
+uuid = { version = "0.2", features = ["serde", "v4"] }

@@ -49,6 +49,7 @@ impl JsObjStruct {
         // ...and insert the key & value into the dictionary blindly.
         self.dict.insert(k, v);
         println!("DONE");
+        println!("{:#?}", self);
     }
 
     pub fn get_children(&self) -> HashSet<UniqueBinding> {

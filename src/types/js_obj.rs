@@ -33,6 +33,7 @@ impl JsObjStruct {
     }
 
     pub fn add_key<T: Allocator>(&mut self, k: JsKey, v: JsVar, ptr: Option<JsPtrEnum>, allocator: &mut T) {
+        println!("{:#?}", self);
         // If the key already exists, potentially condemn its pointer, which is being overwritten.
         if let Some(var) = self.dict.get(&k) {
             println!("VAR");

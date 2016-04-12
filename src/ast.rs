@@ -74,12 +74,14 @@ impl Display for BinOp {
 
 #[derive(Clone, Debug)]
 pub enum Exp {
+    Array(Vec<Box<Exp>>),
     BinExp(Box<Exp>, BinOp, Box<Exp>),
     Bool(bool),
     Call(Box<Exp>, Vec<Box<Exp>>),
     Defun(Option<String>, Vec<String>, Vec<Stmt>),
     Float(f64),
     InstanceVar(Box<Exp>, String),
+    KeyAccessor(Box<Exp>, Box<Exp>),
     Neg(Box<Exp>),
     Null,
     NewObject(Box<Exp>, Vec<Box<Exp>>),
@@ -127,6 +129,19 @@ impl Exp {
         }
 
         match *self {
+            Exp::Array(ref vec) => {
+                try!(write!(fmt, "["));
+
+                for (i, elem) in vec.iter().enumerate() {
+                    if i != 0 {
+                        try!(write!(fmt, ", "));
+                    }
+
+                    try!(write!(fmt, "{}", elem));
+                }
+
+                write!(fmt, "]")
+            }
             Exp::BinExp(ref e1, ref o, ref e2) => {
                 let prec = self.precedence();
 
@@ -191,6 +206,7 @@ impl Exp {
             }
             Exp::Float(f) => write!(fmt, "{}", f),
             Exp::InstanceVar(ref obj, ref name) => write!(fmt, "{}.{}", obj, name),
+            Exp::KeyAccessor(ref obj, ref key) => write!(fmt, "{}[{}]", obj, key),
             Exp::Neg(ref e) => write!(fmt, "-{}", group!(e, Precedence::Sign)),
             Exp::NewObject(ref name, ref args) => {
                 try!(write!(fmt, "new {}(", name));

@@ -36,7 +36,7 @@ macro_rules! format_instance_var {
 }
 
 macro_rules! format_assign {
-    ($s:expr, $e:expr) => { &format!("{}", assign!($s, $e)) }
+    ($s:expr, $e:expr) => { &format!("{}", assign!(var!($s), $e)) }
 }
 
 macro_rules! format_bare_exp {
@@ -223,10 +223,10 @@ fn decl_stmts() {
 #[test]
 fn seq_stmts() {
     assert_eq!("someThing = 8.25 - OTHER;\n-3 * 42.5;\n",
-        format_seq!(assign!("someThing", exp!(Float(8.25), Minus, var!("OTHER"))),
+        format_seq!(assign!(var!("someThing"), exp!(Float(8.25), Minus, var!("OTHER"))),
             BareExp(exp!(Float(-3.0), Star, Float(42.5)))));
     assert_eq!("-10 / num - 17;\nvar NUM = -34.5 / _l4 + 8;\nthing2 = r * -51 + 3.5;\n", format_seq!(
         BareExp(exp!(exp!(Float(-10.0), Slash, var!("num")), Minus, Float(17.0))), seq!(
             decl!("NUM", exp!(exp!(Float(-34.5), Slash, var!("_l4")), Plus, Float(8.0))),
-            assign!("thing2", exp!(exp!(var!("r"), Star, Float(-51.0)), Plus, Float(3.5))))));
+            assign!(var!("thing2"), exp!(exp!(var!("r"), Star, Float(-51.0)), Plus, Float(3.5))))));
 }

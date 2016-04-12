@@ -247,7 +247,7 @@ impl Display for Exp {
 
 #[derive(Clone, Debug)]
 pub enum Stmt {
-    Assign(String, Exp),
+    Assign(Exp, Exp),
     BareExp(Exp),
     Decl(String, Exp),
     Empty,

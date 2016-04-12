@@ -15,7 +15,7 @@ impl Binding {
 
     pub fn mangle(b: &Self) -> Self {
         Self::new(String::from("%---") +  &b.0 +  "---%" +
-                  &Uuid::new_v4().to_simple_string())
+                  &Uuid::new_v4().simple().to_string())
     }
 
     pub fn anon() -> Self {
@@ -44,12 +44,12 @@ impl UniqueBinding {
 
     pub fn mangle(b: &Binding) -> Self {
         Self::new(String::from("%---") +  &b.0 +  "---%" +
-                  &Uuid::new_v4().to_simple_string())
+                  &Uuid::new_v4().simple().to_string())
     }
 
     pub fn mangle_str(s: &str) -> Self {
         Self::new(String::from("%---") +  s +  "---%" +
-                  &Uuid::new_v4().to_simple_string())
+                  &Uuid::new_v4().simple().to_string())
     }
 
     pub fn anon() -> Self {

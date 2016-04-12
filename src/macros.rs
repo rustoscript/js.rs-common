@@ -54,7 +54,7 @@ macro_rules! method {
 
 #[macro_export]
 macro_rules! assign {
-    ($v:expr, $e:expr) => { Assign(String::from($v), $e) }
+    ($v:expr, $e:expr) => { Assign($v, $e) }
 }
 
 #[macro_export]

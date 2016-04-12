@@ -110,6 +110,7 @@ pub enum Exp {
     Float(f64),
     InstanceVar(Box<Exp>, String),
     KeyAccessor(Box<Exp>, Box<Exp>),
+    LogNot(Box<Exp>),
     Neg(Box<Exp>),
     Null,
     NewObject(Box<Exp>, Vec<Box<Exp>>),
@@ -129,7 +130,7 @@ impl Exp {
     pub fn precedence(&self) -> Precedence {
         match *self {
             Exp::BinExp(_, ref o, _) => o.precedence(),
-            Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
+            Exp::LogNot(_) | Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
             Exp::PostDec(_) | Exp::PostInc(_) | Exp::PreDec(_) | Exp::PreInc(_) => Precedence::Inc,
             _ => Precedence::Const
         }
@@ -235,6 +236,7 @@ impl Exp {
             Exp::Float(f) => write!(fmt, "{}", f),
             Exp::InstanceVar(ref obj, ref name) => write!(fmt, "{}.{}", obj, name),
             Exp::KeyAccessor(ref obj, ref key) => write!(fmt, "{}[{}]", obj, key),
+            Exp::LogNot(ref e) => write!(fmt, "!{}", group!(e, Precedence::Sign)),
             Exp::Neg(ref e) => write!(fmt, "-{}", group!(e, Precedence::Sign)),
             Exp::NewObject(ref name, ref args) => {
                 try!(write!(fmt, "new {}(", name));

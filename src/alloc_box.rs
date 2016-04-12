@@ -118,11 +118,10 @@ impl AllocBox {
 mod tests {
     use super::*;
 
-    use jsrs_common::gc_error::GcError;
-    use jsrs_common::types::allocator::Allocator;
-    use jsrs_common::types::binding::UniqueBinding;
-    use jsrs_common::types::js_var::JsPtrEnum;
-    use jsrs_common::types::js_str::JsStrStruct;
+    use gc_error::GcError;
+    use types::binding::UniqueBinding;
+    use types::js_var::JsPtrEnum;
+    use types::js_str::JsStrStruct;
     use test_utils;
 
     #[test]

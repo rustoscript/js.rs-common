@@ -71,9 +71,10 @@ impl JsObjStruct {
         println!("{:#?}", self);
     }
 
-    pub fn remove_key(&mut self, k: &JsKey, allocate: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{
+    pub fn remove_key(&mut self, k: &JsKey, allocator: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{
         if let Some(var) = self.dict.remove(k) {
-            let ptr = allocator.borrow_mut().remove_binding(var.unique.clone());
+            let ptr = allocator.find_id(&var.unique).map(|s| s.borrow().clone());
+            allocator.condemn(var.unique.clone()).expect("Unable to whiten!");
             Some((var, ptr))
         } else {
             None

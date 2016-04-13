@@ -8,6 +8,12 @@ use alloc_box::AllocBox;
 use super::binding::UniqueBinding;
 use super::js_var::{JsVar, JsKey, JsType, JsPtrEnum};
 
+macro_rules! ptr_type_mismatch {
+    ($tag:expr, $ptr:expr) => {
+        panic!("Pointer type mismatch: expected {:?} but received {:?}", $tag, $ptr);
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct JsObjStruct {
     pub proto: JsProto,
@@ -23,8 +29,21 @@ impl JsObjStruct {
             proto: None,
             name: String::from(name),
             dict: kv_tuples.into_iter().map(|(k, v, ptr)| {
-                if let Some(ptr) = ptr {
-                    allocator.alloc(v.unique.clone(), ptr).expect("Unable to allocate!"); // TODO better error handling
+                match v.t {
+                    JsType::JsPtr(ref tag) => match ptr {
+                        Some(ptr) => {
+                            if tag.eq_ptr_type(&ptr) {
+                                allocator.alloc(v.unique.clone(), ptr).expect("Unable to allocate!"); // TODO better error handling
+                            } else {
+                                ptr_type_mismatch!(tag, ptr);
+                            }
+                        },
+                        None => ptr_type_mismatch!(tag, None::<JsPtrEnum>),
+                    },
+                    _ => match ptr {
+                        Some(ptr) => ptr_type_mismatch!(None::<JsPtrEnum>, ptr),
+                        None => {},
+                    },
                 }
                 (k, v)
             }).collect()

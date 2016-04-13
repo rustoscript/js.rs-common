@@ -71,6 +71,15 @@ impl JsObjStruct {
         println!("{:#?}", self);
     }
 
+    pub fn remove_key(&mut self, k: &JsKey, allocate: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{
+        if let Some(var) = self.dict.remove(k) {
+            let ptr = allocator.borrow_mut().remove_binding(var.unique.clone());
+            Some((var, ptr))
+        } else {
+            None
+        }
+    }
+
     pub fn get_children(&self) -> HashSet<UniqueBinding> {
         let mut bindings = HashSet::new();
         for v in self.dict.values() {

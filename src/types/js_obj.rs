@@ -19,10 +19,18 @@ impl JsObjStruct {
     #[allow(unused_variables)]
     pub fn new(proto: JsProto, name: &str, kv_tuples: Vec<(JsKey, JsVar, Option<JsPtrEnum>)>,
                allocator: &mut AllocBox) -> JsObjStruct {
+        let proto_vec : Vec<_> = match proto {
+            Some(ref obj) => obj.clone().dict.into_iter().map(|(key, var)| {
+                let ptr = allocator.find_id(&var.unique).map(|ptr| ptr.borrow().clone());
+                (key, JsVar::new(var.t), ptr)
+            }).collect(),
+            None => Vec::new(),
+        };
+
         JsObjStruct {
-            proto: None,
+            proto: proto,
             name: String::from(name),
-            dict: kv_tuples.into_iter().map(|(k, v, ptr)| {
+            dict: proto_vec.into_iter().chain(kv_tuples.into_iter()).map(|(k, v, ptr)| {
                 if let Some(ptr) = ptr {
                     allocator.alloc(v.unique.clone(), ptr).expect("Unable to allocate!"); // TODO better error handling
                 }

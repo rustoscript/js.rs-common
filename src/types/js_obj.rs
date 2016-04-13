@@ -59,24 +59,17 @@ impl JsObjStruct {
     }
 
     pub fn add_key(&mut self, k: JsKey, v: JsVar, ptr: Option<JsPtrEnum>, allocator: &mut AllocBox) {
-        println!("{:#?}", self);
-        // If the key already exists, potentially condemn its pointer, which is being overwritten.
         if let Some(var) = self.dict.get(&k) {
-            println!("VAR");
             match var.t {
-                JsType::JsPtr(_) => { println!("CONDEMN"); allocator.condemn(var.unique.clone()).expect("Unable to whiten!") },
+                JsType::JsPtr(_) => { allocator.condemn(var.unique.clone()).expect("Unable to whiten!") },
                 _ => {}
             }
         }
-        // Then, allocate the new pointer if necessary...
         if let Some(ptr) = ptr {
-            println!("POINTER");
             allocator.alloc(v.unique.clone(), ptr).expect("Unable to allocate!"); // TODO better error handling
         }
-        // ...and insert the key & value into the dictionary blindly.
+
         self.dict.insert(k, v);
-        println!("DONE");
-        println!("{:#?}", self);
     }
 
     pub fn remove_key(&mut self, k: &JsKey, allocator: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{

@@ -88,7 +88,11 @@ impl JsObjStruct {
 
         if let Some(var) = var_opt {
             let ptr = allocator.find_id(&var.unique).map(|s| s.borrow().clone());
-            allocator.condemn(var.unique.clone()).expect("Unable to whiten!");
+
+            if ptr.is_some() {
+                allocator.condemn(var.unique.clone()).expect("Unable to whiten!");
+            }
+            
             let _ = self.dict.remove(k);
             Some((var, ptr))
         } else {

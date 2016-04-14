@@ -8,6 +8,7 @@ pub mod alloc_box;
 pub mod ast;
 pub mod backend;
 pub mod gc_error;
+pub mod js_error;
 pub mod macros;
 pub mod test_utils;
 pub mod types;

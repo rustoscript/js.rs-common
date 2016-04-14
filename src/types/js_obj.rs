@@ -14,6 +14,8 @@ macro_rules! ptr_type_mismatch {
     }
 }
 
+pub type JsProto = Option<Box<JsObjStruct>>;
+
 #[derive(Clone, Debug)]
 pub struct JsObjStruct {
     pub proto: JsProto,
@@ -41,7 +43,8 @@ impl JsObjStruct {
                     JsType::JsPtr(ref tag) => match ptr {
                         Some(ptr) => {
                             if tag.eq_ptr_type(&ptr) {
-                                allocator.alloc(v.unique.clone(), ptr).expect("Unable to allocate!"); // TODO better error handling
+                                allocator.alloc(v.unique.clone(), ptr)
+                                    .expect("Unable to allocate!"); // TODO better error handling
                             } else {
                                 ptr_type_mismatch!(tag, ptr);
                             }
@@ -58,7 +61,8 @@ impl JsObjStruct {
         }
     }
 
-    pub fn add_key(&mut self, obj_binding: &UniqueBinding, k: JsKey, v: JsVar, ptr: Option<JsPtrEnum>, allocator: &mut AllocBox) {
+    pub fn add_key(&mut self, obj_binding: &UniqueBinding, k: JsKey, v: JsVar,
+                   ptr: Option<JsPtrEnum>, allocator: &mut AllocBox) {
         if let Some(var) = self.dict.get(&k) {
             match var.t {
                 JsType::JsPtr(_) => { allocator.condemn(var.unique.clone()).expect("Unable to whiten!") },
@@ -80,7 +84,8 @@ impl JsObjStruct {
         self.dict.insert(k, v);
     }
 
-    pub fn remove_key(&mut self, obj_binding: &UniqueBinding, k: &JsKey, allocator: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{
+    pub fn remove_key(&mut self, obj_binding: &UniqueBinding, k: &JsKey, allocator: &mut AllocBox)
+        -> Option<(JsVar, Option<JsPtrEnum>)>{
         let var_opt = match &mut *(allocator.find_id(obj_binding).expect("No pointer with matching binding found!").borrow_mut()) {
             &mut JsPtrEnum::JsObj(ref mut obj) => obj.dict.remove(k),
             _ => panic!("Binding does not belong to an object!"),
@@ -92,7 +97,7 @@ impl JsObjStruct {
             if ptr.is_some() {
                 allocator.condemn(var.unique.clone()).expect("Unable to whiten!");
             }
-            
+
             let _ = self.dict.remove(k);
             Some((var, ptr))
         } else {
@@ -127,14 +132,3 @@ impl Display for JsObjStruct {
         write!(fmt, " }}")
     }
 }
-
-pub type JsProto = Option<Box<JsObjStruct>>;
-
-// TODO nice JS object creation macro
-//macro_rules! js_obj {
-//    ( $kt:ty : $ke:expr => $vt:ty : $ve:expr ),* {
-//        {
-//
-//        }
-//    };
-//}

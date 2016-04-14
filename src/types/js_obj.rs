@@ -58,7 +58,7 @@ impl JsObjStruct {
         }
     }
 
-    pub fn add_key(&mut self, k: JsKey, v: JsVar, ptr: Option<JsPtrEnum>, allocator: &mut AllocBox) {
+    pub fn add_key(&mut self, obj_binding: &UniqueBinding, k: JsKey, v: JsVar, ptr: Option<JsPtrEnum>, allocator: &mut AllocBox) {
         if let Some(var) = self.dict.get(&k) {
             match var.t {
                 JsType::JsPtr(_) => { allocator.condemn(var.unique.clone()).expect("Unable to whiten!") },
@@ -69,7 +69,15 @@ impl JsObjStruct {
             allocator.alloc(v.unique.clone(), ptr).expect("Unable to allocate!"); // TODO better error handling
         }
 
-        self.dict.insert(k, v);
+        match allocator.find_id(obj_binding) {
+            Some(ref ptr) => match &mut *(ptr.borrow_mut()) {
+                &mut JsPtrEnum::JsObj(ref mut obj) => obj.dict.insert(k, v),
+                _ => panic!("Binding does not belong to an object!"),
+            },
+            None => panic!("No pointer with matching binding found!"),
+        };
+
+        //self.dict.insert(k, v);
     }
 
     pub fn remove_key(&mut self, k: &JsKey, allocator: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{

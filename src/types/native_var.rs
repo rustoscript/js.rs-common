@@ -12,14 +12,14 @@ pub struct NativeVar {
     pub ptr: Option<Box<JsPtrEnum>>,
     name: String,
     getter: fn(Rc<RefCell<Backend>>, JsVar, Option<JsPtrEnum>, Option<JsPtrEnum>) -> (JsVar, Option<JsPtrEnum>),
-    setter: fn(Rc<RefCell<Backend>>, JsVar, Option<JsPtrEnum>, Option<JsPtrEnum>, JsVar,
+    setter: fn(Rc<RefCell<Backend>>, JsVar, Option<JsPtrEnum>, Option<(JsVar, JsPtrEnum)>, JsVar,
                Option<JsPtrEnum>) -> (JsVar, Option<JsPtrEnum>),
 }
 
 impl NativeVar {
     pub fn new(var: JsVar, ptr: Option<JsPtrEnum>, name: &str,
                getter: fn(Rc<RefCell<Backend>>, JsVar, Option<JsPtrEnum>, Option<JsPtrEnum>) -> (JsVar, Option<JsPtrEnum>),
-               setter: fn(Rc<RefCell<Backend>>, JsVar, Option<JsPtrEnum>, Option<JsPtrEnum>, JsVar, Option<JsPtrEnum>) -> (JsVar, Option<JsPtrEnum>))
+               setter: fn(Rc<RefCell<Backend>>, JsVar, Option<JsPtrEnum>, Option<(JsVar, JsPtrEnum)>, JsVar, Option<JsPtrEnum>) -> (JsVar, Option<JsPtrEnum>))
                -> NativeVar {
         NativeVar { var: var, ptr: ptr.map(Box::new), name: String::from(name), getter: getter, setter: setter }
     }
@@ -30,7 +30,7 @@ impl NativeVar {
         get(backend, self.var.clone(), self.ptr.clone().map(|x| *x), this)
     }
 
-    pub fn set(&mut self, state: Rc<RefCell<Backend>>, this: Option<JsPtrEnum>, var: JsVar,
+    pub fn set(&mut self, state: Rc<RefCell<Backend>>, this: Option<(JsVar, JsPtrEnum)>, var: JsVar,
                ptr: Option<JsPtrEnum>) {
         let set = self.setter;
         let (var, ptr) = set(state.clone(), self.var.clone(), self.ptr.clone().map(|x| *x), this.clone(), var, ptr);
@@ -38,13 +38,13 @@ impl NativeVar {
         self.var = var;
         self.ptr = ptr.map(Box::new);
 
-        if let Some(JsPtrEnum::JsObj(mut obj)) = this {
+        if let Some((this_var, JsPtrEnum::JsObj(mut obj))) = this {
             let key = JsKey::JsStr(JsStrStruct::new(&self.name));
             let state_ref = state.borrow_mut();
             let alloc_box = state_ref.get_alloc_box();
             let self_var = JsVar::new(JsType::JsPtr(JsPtrTag::NativeVar { type_string: String::from("number") }));
             let self_ptr = JsPtrEnum::NativeVar(self.clone());
-            obj.add_key(key, self_var, Some(self_ptr), &mut *(alloc_box.borrow_mut()));
+            obj.add_key(&this_var.unique, key, self_var, Some(self_ptr), &mut *(alloc_box.borrow_mut()));
         }
     }
 }

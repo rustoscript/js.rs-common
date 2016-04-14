@@ -80,10 +80,16 @@ impl JsObjStruct {
         self.dict.insert(k, v);
     }
 
-    pub fn remove_key(&mut self, k: &JsKey, allocator: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{
-        if let Some(var) = self.dict.remove(k) {
+    pub fn remove_key(&mut self, obj_binding: &UniqueBinding, k: &JsKey, allocator: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{
+        let var_opt = match &mut *(allocator.find_id(obj_binding).expect("No pointer with matching binding found!").borrow_mut()) {
+            &mut JsPtrEnum::JsObj(ref mut obj) => obj.dict.remove(k),
+            _ => panic!("Binding does not belong to an object!"),
+        };
+
+        if let Some(var) = var_opt {
             let ptr = allocator.find_id(&var.unique).map(|s| s.borrow().clone());
             allocator.condemn(var.unique.clone()).expect("Unable to whiten!");
+            let _ = self.dict.remove(k);
             Some((var, ptr))
         } else {
             None

@@ -71,13 +71,13 @@ impl JsObjStruct {
 
         match allocator.find_id(obj_binding) {
             Some(ref ptr) => match &mut *(ptr.borrow_mut()) {
-                &mut JsPtrEnum::JsObj(ref mut obj) => obj.dict.insert(k, v),
+                &mut JsPtrEnum::JsObj(ref mut obj) => obj.dict.insert(k.clone(), v.clone()),
                 _ => panic!("Binding does not belong to an object!"),
             },
             None => panic!("No pointer with matching binding found!"),
         };
 
-        //self.dict.insert(k, v);
+        self.dict.insert(k, v);
     }
 
     pub fn remove_key(&mut self, k: &JsKey, allocator: &mut AllocBox) -> Option<(JsVar, Option<JsPtrEnum>)>{

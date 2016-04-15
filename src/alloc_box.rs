@@ -72,10 +72,10 @@ impl AllocBox {
 
     pub fn sweep_ptrs(&mut self) {
         // Delete all white pointers and reset the GC state.
-        self.white_set.clear();
+        self.white_set = HashMap::new();
         // TODO is it a good assumption to reset everything to grey?
         self.grey_set = self.black_set.drain().collect();
-        self.black_set.clear();
+        self.black_set = HashMap::new();
     }
 
     pub fn find_id(&self, bnd: &UniqueBinding) -> Option<&Alloc<JsPtrEnum>> {

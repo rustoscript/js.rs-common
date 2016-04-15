@@ -43,6 +43,7 @@ impl JsObjStruct {
                     JsType::JsPtr(ref tag) => match ptr {
                         Some(ptr) => {
                             if tag.eq_ptr_type(&ptr) {
+                                println!("HERE");
                                 allocator.alloc(v.unique.clone(), ptr)
                                     .expect("Unable to allocate!"); // TODO better error handling
                             } else {
@@ -69,9 +70,9 @@ impl JsObjStruct {
                 _ => {}
             }
         }
-        if let Some(ptr) = ptr {
+        /*if let Some(ptr) = ptr {
             allocator.alloc(v.unique.clone(), ptr).expect("Unable to allocate!"); // TODO better error handling
-        }
+        }*/
 
         match allocator.find_id(obj_binding) {
             Some(ref ptr) => match &mut *(ptr.borrow_mut()) {

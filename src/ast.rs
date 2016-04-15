@@ -103,6 +103,7 @@ impl Display for BinOp {
 #[derive(Clone, Debug)]
 pub enum Exp {
     Array(Vec<Box<Exp>>),
+    BitNot(Box<Exp>),
     BinExp(Box<Exp>, BinOp, Box<Exp>),
     Bool(bool),
     Call(Box<Exp>, Vec<Box<Exp>>),
@@ -130,7 +131,7 @@ impl Exp {
     pub fn precedence(&self) -> Precedence {
         match *self {
             Exp::BinExp(_, ref o, _) => o.precedence(),
-            Exp::LogNot(_) | Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
+            Exp::BitNot(_) | Exp::LogNot(_) | Exp::Neg(_) | Exp::Pos(_) => Precedence::Sign,
             Exp::PostDec(_) | Exp::PostInc(_) | Exp::PreDec(_) | Exp::PreInc(_) => Precedence::Inc,
             _ => Precedence::Const
         }
@@ -195,6 +196,7 @@ impl Exp {
 
                 write!(fmt, "{} {} {}", left, o, right)
             }
+            Exp::BitNot(ref e) => write!(fmt, "~{}", group!(e, Precedence::Sign)),
             Exp::Bool(b) => write!(fmt, "{}", b),
             Exp::Call(ref func, ref args) => {
                 try!(write!(fmt, "{}(", func));

@@ -11,6 +11,7 @@ pub enum JsError {
     TypeError(String),
     ReferenceError(String),
     JsVar((JsVar, Option<JsPtrEnum>)),
+    TestError(String),
     UnimplementedError(String),
 }
 
@@ -32,6 +33,7 @@ impl JsError {
             &JsError::TypeError(_) => false,
             &JsError::ReferenceError(_) => false,
             &JsError::JsVar(_) => false,
+            &JsError::TestError(_) => false,
             &JsError::UnimplementedError(_) => true,
         }
     }
@@ -45,6 +47,7 @@ impl fmt::Display for JsError {
             JsError::TypeError(ref s) => write!(f, "TypeError: {}", s),
             JsError::ReferenceError(ref s) => write!(f, "ReferenceError: {}", s),
             JsError::JsVar(ref var_value) => write!(f, "{:?}", var_value),
+            JsError::TestError(ref s) => write!(f, "TestError: {}", s),
             JsError::UnimplementedError(ref s) => write!(f, "UnimplementedError: {}", s),
         }
     }

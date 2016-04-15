@@ -67,10 +67,10 @@ fn eql() {
     assert!(Eql.precedence() < Plus.precedence());
     assert!(Eql.precedence() < Minus.precedence());
     assert!(Eql.precedence() == Neq.precedence());
-    assert!(Eql.precedence() == Gt.precedence());
-    assert!(Eql.precedence() == Ge.precedence());
-    assert!(Eql.precedence() == Lt.precedence());
-    assert!(Eql.precedence() == Le.precedence());
+    assert!(Eql.precedence() < Gt.precedence());
+    assert!(Eql.precedence() < Ge.precedence());
+    assert!(Eql.precedence() < Lt.precedence());
+    assert!(Eql.precedence() < Le.precedence());
     assert!(Eql.precedence() > And.precedence());
     assert!(Eql.precedence() > Or.precedence());
 }
@@ -82,10 +82,10 @@ fn neq() {
     assert!(Neq.precedence() < Plus.precedence());
     assert!(Neq.precedence() < Minus.precedence());
     assert!(Neq.precedence() == Eql.precedence());
-    assert!(Neq.precedence() == Gt.precedence());
-    assert!(Neq.precedence() == Ge.precedence());
-    assert!(Neq.precedence() == Lt.precedence());
-    assert!(Neq.precedence() == Le.precedence());
+    assert!(Neq.precedence() < Gt.precedence());
+    assert!(Neq.precedence() < Ge.precedence());
+    assert!(Neq.precedence() < Lt.precedence());
+    assert!(Neq.precedence() < Le.precedence());
     assert!(Neq.precedence() > And.precedence());
     assert!(Neq.precedence() > Or.precedence());
 }
@@ -96,8 +96,8 @@ fn gt() {
     assert!(Gt.precedence() < Slash.precedence());
     assert!(Gt.precedence() < Plus.precedence());
     assert!(Gt.precedence() < Minus.precedence());
-    assert!(Gt.precedence() == Eql.precedence());
-    assert!(Gt.precedence() == Neq.precedence());
+    assert!(Gt.precedence() > Eql.precedence());
+    assert!(Gt.precedence() > Neq.precedence());
     assert!(Gt.precedence() == Ge.precedence());
     assert!(Gt.precedence() == Lt.precedence());
     assert!(Gt.precedence() == Le.precedence());
@@ -111,8 +111,8 @@ fn ge() {
     assert!(Ge.precedence() < Slash.precedence());
     assert!(Ge.precedence() < Plus.precedence());
     assert!(Ge.precedence() < Minus.precedence());
-    assert!(Ge.precedence() == Eql.precedence());
-    assert!(Ge.precedence() == Neq.precedence());
+    assert!(Ge.precedence() > Eql.precedence());
+    assert!(Ge.precedence() > Neq.precedence());
     assert!(Ge.precedence() == Gt.precedence());
     assert!(Ge.precedence() == Lt.precedence());
     assert!(Ge.precedence() == Le.precedence());
@@ -126,8 +126,8 @@ fn lt() {
     assert!(Lt.precedence() < Slash.precedence());
     assert!(Lt.precedence() < Plus.precedence());
     assert!(Lt.precedence() < Minus.precedence());
-    assert!(Lt.precedence() == Eql.precedence());
-    assert!(Lt.precedence() == Neq.precedence());
+    assert!(Lt.precedence() > Eql.precedence());
+    assert!(Lt.precedence() > Neq.precedence());
     assert!(Lt.precedence() == Gt.precedence());
     assert!(Lt.precedence() == Ge.precedence());
     assert!(Lt.precedence() == Le.precedence());
@@ -141,8 +141,8 @@ fn le() {
     assert!(Le.precedence() < Slash.precedence());
     assert!(Le.precedence() < Plus.precedence());
     assert!(Le.precedence() < Minus.precedence());
-    assert!(Le.precedence() == Eql.precedence());
-    assert!(Le.precedence() == Neq.precedence());
+    assert!(Le.precedence() > Eql.precedence());
+    assert!(Le.precedence() > Neq.precedence());
     assert!(Le.precedence() == Gt.precedence());
     assert!(Le.precedence() == Ge.precedence());
     assert!(Le.precedence() == Lt.precedence());

@@ -43,6 +43,7 @@ impl JsObjStruct {
                     JsType::JsPtr(ref tag) => match ptr {
                         Some(ptr) => {
                             if tag.eq_ptr_type(&ptr) {
+                                println!("{:?}", ptr);
                                 allocator.alloc(v.unique.clone(), ptr)
                                     .expect("Unable to allocate!"); // TODO better error handling
                             } else {
@@ -62,7 +63,7 @@ impl JsObjStruct {
     }
 
     pub fn add_key(&mut self, obj_binding: &UniqueBinding, k: JsKey, v: JsVar,
-                   ptr: Option<JsPtrEnum>, allocator: &mut AllocBox) {
+                   _ptr: Option<JsPtrEnum>, allocator: &mut AllocBox) {
         if let Some(var) = self.dict.get(&k) {
             match var.t {
                 JsType::JsPtr(_) => { allocator.condemn(var.unique.clone()).expect("Unable to whiten!") },

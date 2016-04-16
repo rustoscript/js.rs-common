@@ -34,6 +34,20 @@ impl AsBool for JsVar {
     }
 }
 
+impl AsBool for JsPtrEnum {
+    fn as_bool(&self) -> bool {
+        match *self {
+            JsPtrEnum::JsSym(_) |
+            JsPtrEnum::JsFn(_) |
+            JsPtrEnum::JsObj(_) |
+            JsPtrEnum::NativeFn(_) => true,
+            JsPtrEnum::JsStr(ref s) => s.text.len() != 0,
+            JsPtrEnum::NativeVar(ref nv) => nv.ptr.as_ref().map(|ptr| ptr.as_bool()).unwrap_or(nv.var.as_bool()),
+        }
+    }
+}
+
+
 pub trait AsNumber {
     fn as_number(&self) -> f64;
 }

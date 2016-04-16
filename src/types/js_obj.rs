@@ -43,7 +43,6 @@ impl JsObjStruct {
                     JsType::JsPtr(ref tag) => match ptr {
                         Some(ptr) => {
                             if tag.eq_ptr_type(&ptr) {
-                                println!("{:?}", ptr);
                                 allocator.alloc(v.unique.clone(), ptr)
                                     .expect("Unable to allocate!"); // TODO better error handling
                             } else {

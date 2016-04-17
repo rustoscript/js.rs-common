@@ -74,7 +74,7 @@ impl AsNumber for JsPtrEnum {
                     return 0.0
                 }
 
-                text.parse().unwrap_or(NAN)
+                text.trim().parse().unwrap_or(NAN)
             }
             &JsPtrEnum::NativeVar(NativeVar { ref var, ref ptr, .. }) => match (var, ptr) {
                 (_, &Some(ref ptr)) => ptr.as_number(),

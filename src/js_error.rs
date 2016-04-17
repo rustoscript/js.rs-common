@@ -22,7 +22,12 @@ impl JsError {
 
     #[allow(dead_code)]
     pub fn unimplemented(typ: &str) -> JsError {
-        JsError::UnimplementedError(format!("{} not implemented", typ))
+        JsError::UnimplementedError(format!("{}", typ))
+    }
+
+    #[allow(dead_code)]
+    pub fn undefined(binding: &str) -> JsError {
+        JsError::ReferenceError(format!("{} is not defined", binding))
     }
 
     /// Meta errors are problems with the interpreter -- parsing, gc, or unimplemented methods.
@@ -48,7 +53,8 @@ impl fmt::Display for JsError {
             JsError::ReferenceError(ref s) => write!(f, "ReferenceError: {}", s),
             JsError::JsVar(ref var_value) => write!(f, "{:?}", var_value),
             JsError::TestError(ref s) => write!(f, "TestError: {}", s),
-            JsError::UnimplementedError(ref s) => write!(f, "UnimplementedError: {}", s),
+            JsError::UnimplementedError(ref s) =>
+                write!(f, "UnimplementedError: {} is not implemented", s),
         }
     }
 }

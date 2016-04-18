@@ -28,6 +28,8 @@ pub enum BinOp {
     Star,
     Exponent,
     Mod,
+
+    InstanceOf,
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -51,7 +53,7 @@ impl BinOp {
     pub fn precedence(&self) -> Precedence {
         match *self {
             BinOp::And => Precedence::And,
-            BinOp::Ge | BinOp::Gt | BinOp::Le | BinOp::Lt => Precedence::Cmp,
+            BinOp::Ge | BinOp::Gt | BinOp::Le | BinOp::Lt | BinOp::InstanceOf => Precedence::Cmp,
             BinOp::Eql | BinOp::Neq | BinOp::EqlStrict | BinOp::NeqStrict => Precedence::Equality,
             BinOp::Or => Precedence::Or,
             BinOp::BitOr => Precedence::BitOr,
@@ -96,6 +98,7 @@ impl Display for BinOp {
             BinOp::ShiftLeft => write!(fmt, "<<"),
             BinOp::ShiftRight => write!(fmt, ">>"),
             BinOp::ShiftRightUnsigned => write!(fmt, ">>>"),
+            BinOp::InstanceOf => write!(fmt, "instanceof"),
         }
     }
 }

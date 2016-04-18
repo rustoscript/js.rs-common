@@ -297,6 +297,8 @@ impl Display for Exp {
 pub enum Stmt {
     Assign(Exp, Exp),
     BareExp(Exp),
+    Break,
+    Continue,
     Decl(String, Exp),
     Empty,
     If(Exp, Vec<Stmt>, Vec<Stmt>),
@@ -305,7 +307,7 @@ pub enum Stmt {
     // try block, catch variable, catch block, finally block
     Try(Vec<Stmt>, String, Vec<Stmt>, Vec<Stmt>),
     Throw(Box<Exp>),
-    Var(String),
+    VarDecl(String),
     While(Exp, Vec<Stmt>),
 }
 
@@ -342,6 +344,12 @@ impl Stmt {
             Stmt::BareExp(ref exp) => {
                 try!(write!(fmt, "{}", indent));
                 exp_semi!(exp)
+            }
+            Stmt::Break => {
+                write!(fmt, "break;")
+            }
+            Stmt::Continue => {
+                write!(fmt, "continue;")
             }
             Stmt::Decl(ref v, ref exp) => {
                 try!(write!(fmt, "{}var {} = ", indent, v));
@@ -396,7 +404,7 @@ impl Stmt {
 
                 Ok(())
             }
-            Stmt::Var(ref s) => {
+            Stmt::VarDecl(ref s) => {
                 write!(fmt, "var {};", s)
             }
             Stmt::While(ref exp, ref stmt) => {

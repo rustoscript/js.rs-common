@@ -13,6 +13,7 @@ pub enum JsError {
     JsVar((JsVar, Option<JsPtrEnum>)),
     TestError(String),
     UnimplementedError(String),
+    SyntaxError(String),
 }
 
 impl JsError {
@@ -40,6 +41,7 @@ impl JsError {
             &JsError::JsVar(_) => false,
             &JsError::TestError(_) => false,
             &JsError::UnimplementedError(_) => true,
+            &JsError::SyntaxError(_) => false,
         }
     }
 }
@@ -55,6 +57,8 @@ impl fmt::Display for JsError {
             JsError::TestError(ref s) => write!(f, "TestError: {}", s),
             JsError::UnimplementedError(ref s) =>
                 write!(f, "UnimplementedError: {} is not implemented", s),
+            JsError::SyntaxError(ref s) =>
+                write!(f, "SyntaxError: {}", s),
         }
     }
 }

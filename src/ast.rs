@@ -305,6 +305,7 @@ pub enum Stmt {
     // try block, catch variable, catch block, finally block
     Try(Vec<Stmt>, String, Vec<Stmt>, Vec<Stmt>),
     Throw(Box<Exp>),
+    Var(String),
     While(Exp, Vec<Stmt>),
 }
 
@@ -394,6 +395,9 @@ impl Stmt {
                 }
 
                 Ok(())
+            }
+            Stmt::Var(ref s) => {
+                write!(fmt, "var {};", s)
             }
             Stmt::While(ref exp, ref stmt) => {
                 try!(write!(fmt, "{}while ({}) {{\n", indent, exp));

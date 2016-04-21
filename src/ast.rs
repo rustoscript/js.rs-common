@@ -305,6 +305,8 @@ pub enum Stmt {
     Decl(String, Exp),
     Empty,
     If(Exp, Vec<Stmt>, Vec<Stmt>),
+    // for (initialization, condition, step) { block }
+    For(Box<Stmt>, Exp, Exp, Vec<Stmt>),
     Ret(Exp),
     Seq(Box<Stmt>, Box<Stmt>),
     // try block, catch variable, catch block, finally block
@@ -375,6 +377,12 @@ impl Stmt {
                 //    try!(write!(fmt, "{}}}\n", indent));
                 //}
 
+                Ok(())
+            }
+            Stmt::For(ref init, ref cond, ref step, ref block) => {
+                try!(write!(fmt, "{}for ({}; {}; {})", indent,
+                                    init, cond, step));
+                stmt_block!(block);
                 Ok(())
             }
             Stmt::Ret(ref e) => {
